@@ -1,0 +1,312 @@
+/*
+Theme Name: Homey Child
+Theme URI: http://themeforest.net/user/favethemes/
+Author: Favethemes
+Author URI: http://themeforest.net/user/favethemes/
+Description: Homey is a powerful booking platform that lets you run a residential or commercial
+rental business online with no hassle
+Version: 1.0.0
+Tags: right-sidebar, left-sidebar, custom-colors, custom-menu, featured-images, post-formats, theme-options, translation-ready
+License: GNU General Public License version 3.0
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+Text Domain: homey
+Template: homey
+*/
+
+/* MARGIN */
+.mt-5{
+    margin-top:5px;
+}
+.ml-5{
+    margin-left:5px;
+}
+.mr-5{
+    margin-right:5px;
+}
+.mb-5{
+    margin-bottom:5px;
+}
+.mt-10{
+    margin-top:10px;
+}
+.ml-10{
+    margin-left:10px;
+}
+.mr-10{
+    margin-right:10px;
+}
+.mb-10{
+    margin-bottom:10px;
+}
+.mt-15{
+    margin-top:15px;
+}
+.ml-15{
+    margin-left:15px;
+}
+.mr-15{
+    margin-right:15px;
+}
+.mb-15{
+    margin-bottom:15px;
+}
+.mt-20{
+    margin-top:20px;
+}
+.ml-20{
+    margin-left:20px;
+}
+.mr-20{
+    margin-right:20px;
+}
+.mb-20{
+    margin-bottom:20px;
+}
+/* PADDING */
+.pt-5{
+    padding:5px;
+}
+.pl-5{
+    padding-left:5px;
+}
+.pr-5{
+    padding-right:5px;
+}
+.pb-5{
+    padding-bottom:5px;
+}
+.pt-10{
+    padding:10px;
+}
+.pl-10{
+    padding-left:10px;
+}
+.pr-10{
+    padding-right:10px;
+}
+.pb-10{
+    padding-bottom:10px;
+}
+.pt-15{
+    padding:15px;
+}
+.pl-15{
+    padding-left:15px;
+}
+.pr-15{
+    padding-right:15px;
+}
+.pb-15{
+    padding-bottom:15px;
+}
+.pt-20{
+    padding:20px;
+}
+.pl-20{
+    padding-left:20px;
+}
+.pr-20{
+    padding-right:20px;
+}
+.mp-20{
+    padding-bottom:20px;
+}
+
+.check-day-availability .form-group {
+    width: 100%;
+}
+.check-day-availability {
+    display: flex;
+    gap:10px;
+}
+.customize-guest-prices {
+    display: flex;
+    gap: 20px;
+}
+.guest-quantities {
+    display: flex;
+    flex-direction: column;
+}
+.guest-quantities span {
+    min-height: 42px !important;
+    padding-top: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+.guest-price-fields input {
+    margin-bottom: 10px;
+}
+.guest-price-availablity div {
+    min-height: 42px !important;
+    margin-bottom: 10px !important;
+    padding-top: 6px;
+}
+#upload-progress-images {
+    margin-bottom: 30px !important;
+}
+.single-rules-row {
+    display: flex;
+    justify-content: space-between;
+    background-color: #e1e1e17a;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+.single-rules-row .rules-fileds-sections {
+    display: flex;
+    gap: 10px;
+}
+.single-rules-row .rules-fileds-sections .form-group {
+    width: 130px;
+}
+.single-rules-row .rules-fileds-sections .remove-btn-single-rule {
+    background-color: red;
+    padding: 0px 12px;
+    padding-top: 0px;
+    height: 35px;
+    border-radius: 30px;
+    padding-top: 5px;
+    color: white;
+    margin-top: 2px;
+}
+.single-rules-row .rules-fileds-sections .form-group {
+    width: 130px;
+    margin-bottom: 0px;
+}
+.single-rules-row .label-condition {
+    display: block;
+    margin:auto 0px;
+}
+
+#homey-single-map-child {
+    height: 400px;
+    width: 100%;
+    position: relative;
+}
+
+.leaflet-container {
+    z-index: 1;
+}
+
+/* Custom circle style */
+.leaflet-circle {
+    stroke: #FF0000;
+    stroke-opacity: 0.2;
+    stroke-width: 2;
+    fill: #FF0000;
+    fill-opacity: 0.1;
+}
+/* .select-listings-guests .btn.dropdown-toggle.bs-placeholder.btn-default {
+    padding-left: 35px;
+} */
+.select-listings-guests .filter-option.pull-left {
+    padding-left: 25px !important;
+}
+.select-listings-guests .btn.dropdown-toggle:hover .select-listings-guests::after{
+    display: block !important;
+}
+.single-date-hour {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+.single-date-hour .choose-hours {
+    display: flex;
+    gap: 5px;
+    width: 50%;
+}
+.single-date-hour .choose-date {
+    width: 50%;
+}
+.single-date-hour .choose-start-hours,
+.single-date-hour .choose-end-hours {
+    width: 50% !important;
+}
+.choose-hours select {
+    height: 46px !important;
+}
+.choose-date input,
+.choose-hours select {
+    border: none;
+    border-bottom: 1px solid #d8dce1;
+    border-radius: 0px;
+}
+#single-booking-search-calendar {
+    width: 300px;
+    left: 0;
+}
+#single-booking-search-calendar::before {
+    left: 20;
+}
+.remove-booking-hour-row {
+    border: 1px solid #f15e75;
+    position: absolute;
+    right: -20px;
+    padding: 0px 5px;
+    border-radius: 15px;
+    top: 10px;
+    cursor: pointer;
+}
+.remove-booking-hour-row:hover{
+    background-color: #f15e75;
+    color: white;
+}
+.reservation-detail-page-payment ul {
+    padding-left: 0px;
+    list-style-type: none;
+}
+.reservation-detail-page-payment ul li {
+    display: flex;
+    justify-content: space-between;
+}
+.payment-list .reservation-detail-page-payment ul li {
+    display: block;
+}
+.modal-backdrop.fade.in {
+    z-index: 0;
+}
+.iti.iti--allow-dropdown {
+    width: 100%;
+}
+.modal-login-form .checkbox a {
+    color: #f15e75;
+}
+.btn.btn-dark-grey.btn-save-listing {
+    background-color: #f15e75;
+}
+.dashboard-reservation-page .block-section .title {
+    font-size: 18px !important;
+}
+.dashboard-reservation-page .block-section .block-right {
+    font-size: 16px !important;
+}
+.dashboard-reservation-page .block-section .block-left .detail-list a,
+.dashboard-reservation-page .block-section .block-left .detail-list strong,
+.dashboard-reservation-page .block-section .block-left .detail-list li,
+.dashboard-reservation-page .block-section .block-right .detail-list a, 
+.dashboard-reservation-page .block-section .block-right .detail-list strong,
+.dashboard-reservation-page .block-section .block-right .detail-list li {
+    font-size: 16px !important;
+}
+
+.dashboard-reservation-page .block-section .block-body .block-right .payment-list-price-detail .payment-list-price-detail-total-price{
+    font-size: 18px !important;
+}
+
+.reservation-time-countdown-alert {
+    display: flex;
+    gap: 5px;
+}
+
+.media.overtime-message {
+    background: #F15E75;
+    background: linear-gradient(180deg,rgba(241, 94, 117, 1) 0%, rgba(255, 255, 255, 1) 33%);
+}
+
+@media (max-width: 768px) {
+    .hori-daily.search-wrap.search-banner form.clearfix {
+        display: grid !important;
+    }
+    .hori-daily.search-wrap.search-banner form.clearfix .search-type {
+        padding-right: 0px !important;
+    }
+}
