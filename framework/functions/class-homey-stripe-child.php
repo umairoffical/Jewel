@@ -4,8 +4,15 @@ if (!defined('ABSPATH')) {
 }
 
 if (!class_exists('Homey_Stripe')) {
-    error_log('Parent Homey_Stripe class not found. Make sure the homey-core plugin is active.');
-    return;
+    // Try to load the parent class manually
+    $parent_class_path = WP_PLUGIN_DIR . '/homey-core/classes/class-stripe.php';
+    if (file_exists($parent_class_path)) {
+        require_once $parent_class_path;
+    }
+    
+    if (!class_exists('Homey_Stripe')) {
+        return;
+    }
 }
 
 class Homey_Stripe_Child extends Homey_Stripe {
@@ -33,9 +40,27 @@ class Homey_Stripe_Child extends Homey_Stripe {
         try {
             // If this is a reservation payment, route it to the host's connected account
             if (isset($metadata['payment_type']) && $metadata['payment_type'] == 'reservation_fee') {
+                // Get listing_id from metadata or try to get it from reservation_id
+                $listing_id = '';
+                if (isset($metadata['listing_id']) && !empty($metadata['listing_id'])) {
+                    $listing_id = $metadata['listing_id'];
+                } elseif (isset($metadata['reservation_id_for_stripe'])) {
+                    // Fallback: try to get listing_id from reservation
+                    $listing_id = get_post_meta($metadata['reservation_id_for_stripe'], 'reservation_listing_id', true);
+                }
+                
+                // Validate that listing_id exists
+                if (empty($listing_id)) {
+                    throw new Exception('Listing ID is required for reservation payments');
+                }
+                
                 // Get the listing's author (host)
-                $listing_id = $metadata['listing_id'];
                 $host_id = get_post_field('post_author', $listing_id);
+                
+                // Validate that host_id exists
+                if (!$host_id) {
+                    throw new Exception('Host not found for listing');
+                }
                 
                 // Calculate platform fee (you can adjust this calculation)
                 $platform_fee = $this->calculate_platform_fee($amount);
@@ -62,7 +87,6 @@ class Homey_Stripe_Child extends Homey_Stripe {
             $this->payment_intent_secret = $payment_intent->client_secret;
 
         } catch (Exception $e) {
-            error_log('Stripe Payment Intent Error: ' . $e->getMessage());
             throw $e;
         }
     }

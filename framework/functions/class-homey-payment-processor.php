@@ -35,19 +35,32 @@ class Homey_Payment_Processor {
         
         add_action('wp_ajax_homey_validate_host_account', array($this, 'validate_host_account_ajax'));
         add_action('wp_ajax_nopriv_homey_validate_host_account', array($this, 'validate_host_account_ajax'));
+        
     }
     
     /**
      * Validate payment before processing
      */
     public function validate_payment_ajax() {
+        // Force output buffering to prevent any output before JSON
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        
         try {
+            // Basic request validation
+            if (!isset($_POST['reservation_id']) || !isset($_POST['nonce'])) {
+                wp_send_json_error('Missing required parameters');
+                return;
+            }
+            
             // Security check
             if (!wp_verify_nonce($_POST['nonce'], 'homey_stripe_nonce')) {
                 wp_send_json_error('Invalid nonce');
                 return;
             }
             
+            // User authentication
             $reservation_id = intval($_POST['reservation_id']);
             $user_id = get_current_user_id();
             
@@ -56,19 +69,37 @@ class Homey_Payment_Processor {
                 return;
             }
             
-            // Validate reservation exists and belongs to user
+            // Reservation exists and is valid
             $reservation = get_post($reservation_id);
             if (!$reservation || $reservation->post_type !== 'homey_reservation') {
                 wp_send_json_error('Invalid reservation');
                 return;
             }
             
-            // Get host information
-            $listing_id = get_post_meta($reservation_id, 'reservation_listing_id', true);
-            $host_id = get_post_field('post_author', $listing_id);
+            // Reservation belongs to current user
+            $reservation_author = get_post_field('post_author', $reservation_id);
+            if ($reservation_author != $user_id) {
+                wp_send_json_error('Reservation does not belong to current user');
+                return;
+            }
             
+            // Get listing information
+            $listing_id = get_post_meta($reservation_id, 'reservation_listing_id', true);
+            if (!$listing_id) {
+                wp_send_json_error('No listing found for reservation');
+                return;
+            }
+            
+            // Get host information
+            $host_id = get_post_field('post_author', $listing_id);
             if (!$host_id) {
-                wp_send_json_error('Host not found');
+                wp_send_json_error('Host not found for listing');
+                return;
+            }
+            
+            // Check if host is different from guest
+            if ($host_id == $user_id) {
+                wp_send_json_error('Cannot book your own listing');
                 return;
             }
             
@@ -81,15 +112,28 @@ class Homey_Payment_Processor {
             
             // Validate payment amount
             $upfront_payment = get_post_meta($reservation_id, 'reservation_upfront', true);
-            if (!$upfront_payment || $upfront_payment <= 0) {
+            if (!$upfront_payment || !is_numeric($upfront_payment) || $upfront_payment <= 0) {
                 wp_send_json_error('Invalid payment amount');
                 return;
             }
             
-            // Create payment intent with proper validation
+            // Check required classes exist
+            if (!class_exists('Homey_Stripe_Child') || !class_exists('Homey_Dynamic_Settings') || !class_exists('Homey_Stripe_Connect')) {
+                wp_send_json_error('Payment system not properly configured');
+                return;
+            }
+            
+            // Check Stripe configuration
+            $stripe_secret_key = homey_option('stripe_secret_key');
+            if (empty($stripe_secret_key)) {
+                wp_send_json_error('Payment system not configured');
+                return;
+            }
+            
+            // Create payment intent
             $payment_intent = $this->create_payment_intent($reservation_id, $upfront_payment, $host_id);
             
-            if (!$payment_intent) {
+            if (!$payment_intent || !isset($payment_intent['client_secret']) || !isset($payment_intent['id'])) {
                 wp_send_json_error('Failed to create payment intent');
                 return;
             }
@@ -102,10 +146,10 @@ class Homey_Payment_Processor {
             ));
             
         } catch (Exception $e) {
-            error_log('Payment validation error: ' . $e->getMessage());
             wp_send_json_error('Payment validation failed: ' . $e->getMessage());
         }
     }
+    
     
     /**
      * Validate host Stripe Connect account
@@ -156,7 +200,6 @@ class Homey_Payment_Processor {
             );
             
         } catch (Exception $e) {
-            error_log('Host validation error: ' . $e->getMessage());
             return array(
                 'valid' => false,
                 'message' => 'Error validating host account: ' . $e->getMessage()
@@ -169,8 +212,19 @@ class Homey_Payment_Processor {
      */
     private function create_payment_intent($reservation_id, $amount, $host_id) {
         try {
+            // Check if Homey_Stripe_Child class exists
+            if (!class_exists('Homey_Stripe_Child')) {
+                throw new Exception('Homey_Stripe_Child class not found');
+            }
+            
             // Initialize Stripe Child class
             $this->stripe_child = new Homey_Stripe_Child(get_current_user_id());
+            
+            // Get listing ID and validate it
+            $listing_id = get_post_meta($reservation_id, 'reservation_listing_id', true);
+            if (!$listing_id) {
+                throw new Exception('Listing ID not found for reservation');
+            }
             
             // Prepare metadata
             $metadata = array(
@@ -178,7 +232,7 @@ class Homey_Payment_Processor {
                 'userID' => get_current_user_id(),
                 'host_id' => $host_id,
                 'payment_type' => 'reservation_fee',
-                'listing_id' => get_post_meta($reservation_id, 'reservation_listing_id', true),
+                'listing_id' => $listing_id,
                 'message' => 'Reservation Payment'
             );
             
@@ -194,7 +248,6 @@ class Homey_Payment_Processor {
             );
             
         } catch (Exception $e) {
-            error_log('Payment intent creation error: ' . $e->getMessage());
             return false;
         }
     }
@@ -237,7 +290,6 @@ class Homey_Payment_Processor {
             ));
             
         } catch (Exception $e) {
-            error_log('Payment success processing error: ' . $e->getMessage());
             wp_send_json_error('Payment processing failed: ' . $e->getMessage());
         }
     }

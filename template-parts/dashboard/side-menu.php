@@ -32,6 +32,8 @@ $dashboard_host_reservations = homey_get_template_link_dash('template/dashboard-
 $dashboard_exp_reservations = homey_get_template_link_dash('template/dashboard-reservations-experiences.php');
 $dashboard_exp_host_reservations = homey_get_template_link_dash('template/dashboard-reservations2-experiences.php');
 
+$dashboard_stripe_payment_details = homey_get_template_link_dash('template/dashboard-stripe-payment-details.php');
+
 $dashboard_messages = homey_get_template_link_dash('template/dashboard-messages.php');
 $dashboard_invoices = homey_get_template_link_dash('template/dashboard-invoices.php');
 $dashboard_wallet = homey_get_template_link_dash('template/dashboard-wallet.php');
@@ -43,7 +45,7 @@ $password_page = add_query_arg( 'dpage', 'password-reset', $dashboard_profile );
 
 $dashboard_host_stripe = homey_get_template_link_dash('template/dashboard-host-stripe.php');
 
-$ac_wallet = $ac_dash = $ac_host_stripe = $ac_profile = $ac_fav = $ac_experiences = $ac_experience_submission = $ac_listings = $ac_membership = $ac_invoices = $ac_msgs = $ac_submission = $ac_reserv = $ac_reserv_host = $ac_exp_reserv = $ac_exp_reserv_host = '';
+$ac_wallet = $ac_dash = $ac_stripe_payment_details = $ac_host_stripe = $ac_profile = $ac_fav = $ac_experiences = $ac_experience_submission = $ac_listings = $ac_membership = $ac_invoices = $ac_msgs = $ac_submission = $ac_reserv = $ac_reserv_host = $ac_exp_reserv = $ac_exp_reserv_host = '';
 
 //separate two classes check for experiences and for listings
 if ( is_page_template( 'template/dashboard-submission.php' )
@@ -96,7 +98,9 @@ if( is_page_template( 'template/dashboard.php' ) && !isset($_GET['dpage'])) {
     $ac_wallet = 'board-panel-item-active';
 } elseif ( is_page_template( 'template/dashboard-host-stripe.php' ) ) {
     $ac_host_stripe = 'board-panel-item-active';
-} 
+} elseif ( is_page_template( 'template/dashboard-stripe-payment-details.php' ) ) {
+    $ac_stripe_payment_details = 'board-panel-item-active';
+}
 
 ?>
 <div class="user-dashboard-left white-bg"> 
@@ -303,6 +307,14 @@ if( is_page_template( 'template/dashboard.php' ) && !isset($_GET['dpage'])) {
                 if( !empty($dashboard_host_stripe) ) {
                     echo '<li class="'.esc_attr($ac_host_stripe).'">
                         <a href="'.esc_url($dashboard_host_stripe).'">'.esc_html__('Stripe', 'homey').'</a>
+                    </li>';
+                }
+            }
+
+            if(homey_is_admin()){
+                if( !empty($dashboard_stripe_payment_details) ) {
+                    echo '<li class="'.esc_attr($ac_stripe_payment_details).'">
+                        <a href="'.esc_url($dashboard_stripe_payment_details).'">'.esc_html__('Stripe Payments', 'homey').'</a>
                     </li>';
                 }
             }

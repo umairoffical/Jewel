@@ -23,8 +23,6 @@
 
     // Validate host account before showing payment form
     function validateHostAccount(listingId) {
-        console.log('Validating host account for listing:', listingId);
-        console.log('Nonce being sent:', HOMEY_CHILD_stripe_vars.nonce);
         
         return $.ajax({
             url: HOMEY_CHILD_stripe_vars.ajax_url,
@@ -51,7 +49,6 @@
 
         try {
             stripe = Stripe(HOMEY_CHILD_stripe_vars.stripe_publishable_key);
-            console.log('Stripe instance created');
             
             elements = stripe.elements({
                 fonts: [{
@@ -59,7 +56,6 @@
                 }],
                 locale: 'auto'
             });
-            console.log('Stripe elements created');
 
             return true;
         } catch (error) {
@@ -113,7 +109,6 @@
                 return false;
             }
 
-            console.log('Mounting card to container:', cardContainer);
             
             // Clear any existing content
             cardContainer.innerHTML = '';
@@ -123,7 +118,6 @@
             
             // Add change event listener
             card.addEventListener('change', function(event) {
-                console.log('Card element changed:', event);
                 var displayError = document.getElementById('card-errors');
                 if (displayError) {
                     if (event.error) {
@@ -136,14 +130,11 @@
                 }
             });
             
-            console.log('Card element mounted successfully');
             
             // Test if the card element is editable
             setTimeout(function() {
                 var cardInputs = cardContainer.querySelectorAll('input');
-                console.log('Card inputs found:', cardInputs.length);
                 if (cardInputs.length > 0) {
-                    console.log('Card element is editable');
                 } else {
                     console.warn('Card element may not be properly mounted');
                 }
@@ -159,8 +150,6 @@
 
     // Validate payment before processing
     function validatePayment(reservationId) {
-        console.log('Validating payment for reservation:', reservationId);
-        console.log('Nonce being sent:', HOMEY_CHILD_stripe_vars.nonce);
         
         return $.ajax({
             url: HOMEY_CHILD_stripe_vars.ajax_url,
@@ -175,8 +164,6 @@
 
     // Process payment success
     function processPaymentSuccess(paymentIntentId, reservationId) {
-        console.log('Processing payment success for:', paymentIntentId, reservationId);
-        console.log('Nonce being sent:', HOMEY_CHILD_stripe_vars.nonce);
         
         return $.ajax({
             url: HOMEY_CHILD_stripe_vars.ajax_url,
@@ -401,7 +388,6 @@
 
     // Initialize enhanced Stripe payment
     function initEnhancedStripePayment() {
-        console.log('Initializing enhanced Stripe payment...');
         
         if (!initStripe()) {
             console.error('Stripe initialization failed');
@@ -414,7 +400,6 @@
             return;
         }
 
-        console.log('Card element created successfully');
 
         // Mount the card element
         if (!mountCardElement()) {
@@ -426,7 +411,6 @@
         var cardButton = document.getElementById('homey_stripe_submit_btn');
         if (cardButton) {
             cardButton.addEventListener('click', handlePayment);
-            console.log('Payment button event listener added');
         } else {
             console.warn('Payment button not found');
         }
@@ -438,10 +422,8 @@
         var checkStripe = function() {
             attempts++;
             if (typeof Stripe !== 'undefined') {
-                console.log('Stripe loaded after', attempts, 'attempts');
                 callback();
             } else if (attempts < maxAttempts) {
-                console.log('Waiting for Stripe... attempt', attempts);
                 setTimeout(checkStripe, 200);
             } else {
                 console.error('Stripe failed to load after', maxAttempts, 'attempts');

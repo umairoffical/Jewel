@@ -263,11 +263,15 @@ if( $user_can_reply || homey_is_admin() > 0 ) { ?>
                     <?php 
 
                     if($message_status == 'approved' && !empty($new_reservation_id)){
-                        $reservation_page = homey_get_template_link_dash('template/dashboard-reservations.php');
-                        $reservation_detail_link = add_query_arg('reservation_detail', $new_reservation_id, $reservation_page);
+                        // $reservation_page = homey_get_template_link_dash('template/dashboard-reservations.php');
+                        // $reservation_detail_link = add_query_arg('reservation_detail', $new_reservation_id, $reservation_page);
+                        $payment_link = homey_get_template_link_2('template/dashboard-payment.php');
+                        $payment_link = add_query_arg( array(
+                                'reservation_id' => $new_reservation_id,
+                            ), $payment_link );
                         ?>
                             <div class="show-reservation-detail">
-                                <a href="<?php echo esc_url($reservation_detail_link); ?>" target="_blank"><?php esc_html_e('View Reservation', 'homey'); ?></a>
+                                <a class="btn btn-primary" href="<?php echo esc_url($payment_link); ?>" target="_blank"><?php esc_html_e('Pay Now', 'homey'); ?></a>
                             </div>
                         <?php
                     }
@@ -348,7 +352,7 @@ if( $user_can_reply || homey_is_admin() > 0 ) { ?>
                     <div class="form-msg-btns" style="display:flex; justify-content:space-between;">
                         <?php   
                         $reservation_status = get_post_meta($homey_thread->listing_id, 'reservation_status', true);
-                        if($reservation_status == 'available'){
+                        if($reservation_status == 'booked'){
                             ?>
                             <a href="#" style="display:block; padding:0px 25px;" data-toggle="modal" data-target="#overtimeModal" class="btn btn-primary"><?php esc_html_e('Send Overtime Quotation','homey-child');?></a>
                             <?php

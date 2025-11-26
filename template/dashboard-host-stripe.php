@@ -6,13 +6,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Debug information
-if (defined('WP_DEBUG') && WP_DEBUG) {
-    error_log('Loading dashboard-host-stripe.php template');
-    error_log('Class check in template - Homey_Stripe: ' . (class_exists('Homey_Stripe') ? 'Yes' : 'No'));
-    error_log('Class check in template - Homey_Stripe_Connect: ' . (class_exists('Homey_Stripe_Connect') ? 'Yes' : 'No'));
-    error_log('Class check in template - Homey_Stripe_Child: ' . (class_exists('Homey_Stripe_Child') ? 'Yes' : 'No'));
-}
 
 get_header();
 
@@ -32,17 +25,66 @@ $account_status = '';
 $account_details = null;
 $stripe_connect = null;
 
+// Handle Stripe callback after verification
+if ((isset($_GET['setup']) && $_GET['setup'] === 'complete') || (isset($_GET['refresh']) && $_GET['refresh'] === 'true')) {
+    // Security validation: Check if user has a legitimate Stripe account
+    if (!$userID || !homey_is_host()) {
+        $dashboard_url = homey_get_template_link_dash('template/dashboard-host-stripe.php');
+        wp_redirect($dashboard_url);
+        exit;
+    }
+    
+    // Force load Stripe classes if not already loaded
+    if (!class_exists('Homey_Stripe_Connect')) {
+        require_once get_stylesheet_directory() . '/framework/functions/class-homey-stripe-connect.php';
+    }
+    
+    if (class_exists('Homey_Stripe_Connect')) {
+        $stripe_connect = Homey_Stripe_Connect::getInstance();
+        $account_id = $stripe_connect ? $stripe_connect->get_stripe_account_id($userID) : '';
+        
+        // Security check: Only process if user actually has a Stripe account
+        if (!$account_id) {
+            $dashboard_url = homey_get_template_link_dash('template/dashboard-host-stripe.php');
+            wp_redirect($dashboard_url);
+            exit;
+        }
+        
+        // Additional security: Validate the callback is legitimate
+        if (!$stripe_connect->validate_stripe_callback($userID)) {
+            $dashboard_url = homey_get_template_link_dash('template/dashboard-host-stripe.php');
+            wp_redirect($dashboard_url);
+            exit;
+        }
+        
+        // Rate limiting: Check if we've already processed this recently
+        $last_processed = get_user_meta($userID, 'stripe_callback_last_processed', true);
+        if ($last_processed && (time() - $last_processed) < 60) { // 1 minute cooldown
+            $dashboard_url = homey_get_template_link_dash('template/dashboard-host-stripe.php');
+            wp_redirect($dashboard_url);
+            exit;
+        }
+        
+        // Update last processed time
+        update_user_meta($userID, 'stripe_callback_last_processed', time());
+        
+        // Check account status from Stripe and update database
+        $new_status = $stripe_connect->check_and_update_account_status($userID);
+        
+        if ($new_status) {
+            // Account status updated
+        }
+        
+        // Redirect to remove the query parameter - use dynamic URL
+        $dashboard_url = homey_get_template_link_dash('template/dashboard-host-stripe.php');
+        wp_redirect($dashboard_url);
+        exit;
+    }
+}
+
 // Force load Stripe classes if not already loaded
 if (!class_exists('Homey_Stripe_Connect')) {
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('Attempting to force load Stripe classes in template');
-    }
-    
     require_once get_stylesheet_directory() . '/framework/functions/class-homey-stripe-connect.php';
-    
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('After force load - Homey_Stripe_Connect exists: ' . (class_exists('Homey_Stripe_Connect') ? 'Yes' : 'No'));
-    }
 }
 
 // Check if Stripe Connect class exists and initialize it
@@ -65,7 +107,7 @@ if (class_exists('Homey_Stripe_Connect')) {
                 $stripe = new \Stripe\StripeClient(homey_option('stripe_secret_key'));
                 $account_details = $stripe->accounts->retrieve($account_id);
             } catch (Exception $e) {
-                error_log('Error retrieving Stripe account details: ' . $e->getMessage());
+                // Error retrieving account details
             }
         }
     }
@@ -97,9 +139,6 @@ if (class_exists('Homey_Stripe_Connect')) {
 
                                         <?php
                                         if (!class_exists('Homey_Stripe_Connect')) {
-                                            if (defined('WP_DEBUG') && WP_DEBUG) {
-                                                error_log('Stripe Connect class not found when rendering template content');
-                                            }
                                             ?>
                                             <div class="alert alert-warning">
                                                 <?php echo esc_html__('Stripe Connect functionality is not available. Please contact the administrator.', 'homey'); ?>
@@ -232,6 +271,61 @@ if (class_exists('Homey_Stripe_Connect')) {
                                                     .profile-requirement h5, .profile-requirement h6 { color: #856404; margin-bottom: 10px; }
                                                     .profile-requirement ul { margin: 10px 0; padding-left: 20px; }
                                                     .profile-requirement li { margin-bottom: 8px; }
+                                                    .account-actions { margin: 20px 0; }
+                                                    .btn-full-width { width: 100%; padding: 12px; font-size: 16px; }
+                                                </style>
+                                                <?php
+                                            } elseif ($account_status === 'under_review') {
+                                                // Show under review status - account submitted but not yet approved
+                                                ?>
+                                                <div class="block-body">
+                                                    <div class="stripe-account-under-review">
+                                                        <div class="alert alert-info">
+                                                            <h4><i class="homey-icon homey-icon-clock"></i> <?php echo esc_html__('Account Under Review', 'homey'); ?></h4>
+                                                            <p><?php echo esc_html__('Your Stripe account has been submitted and is currently being reviewed by Stripe. This process usually takes a few minutes to a few hours.', 'homey'); ?></p>
+                                                        </div>
+                                                        
+                                                        <div class="review-info">
+                                                            <h5><?php echo esc_html__('What\'s Happening:', 'homey'); ?></h5>
+                                                            <ul>
+                                                                <li><?php echo esc_html__('Stripe is reviewing your submitted information', 'homey'); ?></li>
+                                                                <li><?php echo esc_html__('Your identity and business details are being verified', 'homey'); ?></li>
+                                                                <li><?php echo esc_html__('You\'ll receive an email notification when the review is complete', 'homey'); ?></li>
+                                                            </ul>
+                                                        </div>
+                                                        
+                                                        <div class="access-info">
+                                                            <h5><i class="homey-icon homey-icon-check-circle-1"></i> <?php echo esc_html__('Once Approved, You\'ll Get Access To:', 'homey'); ?></h5>
+                                                            <ul class="access-list">
+                                                                <li><i class="homey-icon homey-icon-home"></i> <?php echo esc_html__('Create and manage your property listings', 'homey'); ?></li>
+                                                                <li><i class="homey-icon homey-icon-calendar"></i> <?php echo esc_html__('Accept bookings and reservations from guests', 'homey'); ?></li>
+                                                                <li><i class="homey-icon homey-icon-payment"></i> <?php echo esc_html__('Receive payments directly to your bank account', 'homey'); ?></li>
+                                                                <li><i class="homey-icon homey-icon-chart"></i> <?php echo esc_html__('Track your earnings and payout history', 'homey'); ?></li>
+                                                                <li><i class="homey-icon homey-icon-settings"></i> <?php echo esc_html__('Manage your host dashboard and settings', 'homey'); ?></li>
+                                                            </ul>
+                                                        </div>
+                                                        
+                                                        <div class="account-actions">
+                                                            <button id="homey-stripe-connect-btn" class="btn btn-primary btn-full-width">
+                                                                <i class="homey-icon homey-icon-refresh"></i>
+                                                                <?php echo esc_html__('Check Status', 'homey'); ?>
+                                                            </button>
+                                                            <p class="text-center">
+                                                                <small><?php echo esc_html__('This will refresh your account status from Stripe.', 'homey'); ?></small>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <style>
+                                                    .stripe-account-under-review { padding: 20px; }
+                                                    .review-info { margin: 20px 0; }
+                                                    .review-info ul { margin: 10px 0; padding-left: 20px; }
+                                                    .review-info li { margin-bottom: 8px; }
+                                                    .access-info { margin: 25px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #17a2b8; }
+                                                    .access-info h4, .access-info h5 { color: #17a2b8; margin-bottom: 15px; }
+                                                    .access-list { margin: 15px 0; padding-left: 0; list-style: none; }
+                                                    .access-list li { margin-bottom: 12px; padding: 8px 0; display: flex; align-items: center; }
+                                                    .access-list li i { margin-right: 12px; color: #17a2b8; font-size: 16px; width: 20px; }
                                                     .account-actions { margin: 20px 0; }
                                                     .btn-full-width { width: 100%; padding: 12px; font-size: 16px; }
                                                 </style>

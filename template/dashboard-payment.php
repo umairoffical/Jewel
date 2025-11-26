@@ -24,6 +24,8 @@ $enable_stripe = homey_option('enable_stripe');
 $stripe_processor_link = homey_get_template_link('template/template-stripe-charge.php');
 $is_hourly = get_post_meta($reservation_id, 'is_hourly', true);
 
+$renter_id = get_current_user_id();
+
 $listing_owner = get_post_meta($reservation_id, 'listing_owner', true);
 
 $user_meta = homey_get_author_by_id('100', '100', 'img-circle', $listing_owner);
@@ -56,225 +58,207 @@ $wir_zip_code = $user_meta['wir_zip_code'];
 
 <section id="body-area">
 
-    <div class="dashboard-page-title">
-        <h1><?php echo esc_html__(the_title('', '', false), 'homey'); ?></h1>
-    </div><!-- .dashboard-page-title -->
-
     <?php get_template_part('template-parts/dashboard/side-menu'); ?>
 
-    <div class="user-dashboard-right dashboard-with-sidebar">
-        <div class="dashboard-content-area">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        <?php if($offsite_payment == 1) { ?>
-                            <div class="dashboard-area">
-                                <div class="block">
-                                    <div class="block-title">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e('Payment info', 'homey'); ?></h2>
-                                        </div>
-                                        <div class="block-right">
-                                            <a href="<?php echo esc_url(reservation_detail_link($reservation_id)); ?>" class="btn btn-primary btn-slim"><?php esc_html_e('Back', 'homey'); ?></a>
-                                        </div><!-- block-right -->
-                                        
-                                    </div>
+    <div class="user-dashboard-right dashboard-with-sidebar" style="padding-top: 120px;">
+        <?php
+        // $reservation_id
+        $listing_id = get_post_meta($reservation_id,'reservation_listing_id',true);   
+        $listing_title = get_the_title($listing_id);
+        $listing_image_id = get_post_meta($listing_id,'homey_listing_images',true);
+        $listing_image_url = wp_get_attachment_image_url($listing_image_id, 'full');
 
-                                    <div class="local-payment-info">
-                                        <?php echo homey_option('offsite-payment-instruction'); ?>
-                                    </div>
+        $booking_dates = get_post_meta($reservation_id, 'reservation_booking_dates', true);
+        $total_hours = get_post_meta($reservation_id, 'reservation_total_hours', true);
+        $guests = get_post_meta($reservation_id, 'reservation_guests', true);
+        $extra_options = get_post_meta($reservation_id, 'extra_options', true);
 
-                                    <div class="block-body">
+        $prefix = 'homey_';
+        $local = homey_get_localization();
+        $allowded_html = array();
+        $output = '';
 
-                                        <ul class="list-unstyled">
-                                            <li><strong><?php esc_html_e('Method', 'homey'); ?></strong> <?php echo homey_get_payout_method($payout_payment_method); ?></li>
-                                        </ul>
-                                        <ul class="list-unstyled list-lined">
-                                            <li>
-                                                <strong><?php esc_html_e('Beneficiary Name', 'homey'); ?></strong> 
-                                                <?php 
-                                                if(!empty($ben_first_name) || !empty($ben_last_name)) {
-                                                    echo esc_attr($ben_first_name).' '.esc_attr($ben_last_name); 
-                                                } else {
-                                                    echo '-';
-                                                }
-                                                ?>
-                                            </li>
-                                            
-                                        </ul>
-                                        <ul class="list-unstyled list-lined">
-                                            <li>
-                                                <strong><?php esc_html_e('Address', 'homey'); ?></strong> 
-                                                <?php 
-                                                if(!empty($ben_street_address)) {
-                                                    echo esc_attr($ben_street_address); 
-                                                } else {
-                                                    echo '-';
-                                                }
-                                                ?>
-                                            </li>
-                                        </ul>
+        $prices_array = homey_get_prices_child($booking_dates, $total_hours, $listing_id, $guests, $extra_options);
 
-                                        <ul class="list-unstyled list-lined mb-0">
-                                            <?php if($payout_payment_method == 'paypal') { ?>
+        $nights_total_price_li_html = '';
+        $price_per_night = $prices_array['price_per_night'];
+        $no_of_days = $prices_array['days_count'];
 
-                                                    <li>
-                                                        <strong><?php esc_html_e('PayPal Email', 'homey'); ?></strong> 
-                                                        <?php echo esc_attr($payout_paypal_email); ?>
-                                                    </li>
+        $guest_price = $prices_array['guest_price'];
 
-                                            <?php } elseif ($payout_payment_method == 'skrill') { ?>
+        $nights_total_price = $price_per_night * $total_hours;
 
-                                                    <li>
-                                                        <strong><?php esc_html_e('Skrill Email', 'homey'); ?></strong> 
-                                                        <?php echo esc_attr($payout_skrill_email); ?>
-                                                    </li>
-                                                
-                                            <?php } elseif ($payout_payment_method == 'wire') { ?>
-                                                <li>
-                                                    <strong><?php esc_html_e('Beneficiary Account Number', 'homey'); ?></strong> 
-                                                    <?php 
-                                                    if(!empty($bank_account)) {
-                                                        echo esc_attr($bank_account); 
-                                                    } else {
-                                                        echo '-';
-                                                    }
-                                                    ?>
-                                                </li>
-                                                <li>
-                                                    <strong><?php esc_html_e('SWIFT', 'homey'); ?></strong> 
-                                                    <?php 
-                                                    if(!empty($swift)) {
-                                                        echo esc_attr($swift); 
-                                                    } else {
-                                                        echo '-';
-                                                    }
-                                                    ?>
-                                                </li>
-                                                <li>
-                                                    <strong><?php esc_html_e('Bank Name', 'homey'); ?></strong> 
-                                                    <?php 
-                                                    if(!empty($bank_name)) {
-                                                        echo esc_attr($bank_name); 
-                                                    } else {
-                                                        echo '-';
-                                                    }
-                                                    ?>
-                                                </li>
-                                                <li>
-                                                    <strong><?php esc_html_e('Bank Address', 'homey'); ?></strong> 
-                                                    <?php 
-                                                    if(!empty($wir_street_address)) {
-                                                        echo esc_attr($wir_street_address).', '.esc_attr($wir_city).', '.esc_attr($wir_state).', '.esc_attr($wir_zip_code);
-                                                    } else {
-                                                        echo '-';
-                                                    }
-                                                    ?>
-                                                </li>
-                                            <?php } ?>
-                                        </ul>
-                                    </div>
-                                </div>
+        $services_fee = $prices_array['services_fee'];
+        $taxes = $prices_array['taxes'];
+        $taxes_percent = $prices_array['taxes_percent'];
+        $city_fee = homey_formatted_price($prices_array['city_fee']);
+        $security_deposit = $prices_array['security_deposit'];
+        $additional_guests = $prices_array['additional_guests'];
+        $additional_guests_price = $prices_array['additional_guests_price'];
+        $additional_guests_total_price = $prices_array['additional_guests_total_price'];
 
-                                <?php if($reservation_status == 'available') { ?>
-                                <div class="payment-buttons">
-                                    <div id="homey_notify"></div>
-                                    <input type="hidden" name="reservation_id" id="reservation_id" value="<?php echo intval($reservation_id); ?>">
+        $booking_has_weekend = $prices_array['booking_has_weekend'];
+        $booking_has_custom_pricing = $prices_array['booking_has_custom_pricing'];
+        $with_weekend_label = $local['with_weekend_label'];
 
-                                    <button id="guest_paid_button" class="btn btn-success btn-full-width"><?php esc_html_e('Mark as Paid', 'homey'); ?></button>
-                                </div>
-                                <?php } ?>
-                            </div>
-                        <?php } else { ?>
-                            <form name="homey_checkout" method="post" class="homey_payment_form" action="<?php echo esc_url($stripe_processor_link); ?>">
-                                <div class="dashboard-area">
+        $extra_prices_html = $prices_array['extra_prices_html'];
+        $total_price = $prices_array['total_price'];
 
-                                    <div class="block">
-                                        <div class="block-head">
-                                            <div class="block-left">
-                                                <h2 class="title"><?php esc_html_e('Select the payment method', 'homey'); ?></h2>
-                                            </div><!-- block-left -->
-                                        </div><!-- block-head -->
-                                    
-                                        <div class="block-body">
-                                            <div class="row">
-                                                <div class="col-sm-12">
-                                                    <div class="payment-method">
-                                                        <?php if($enable_paypal != 0) { ?>
-                                                        <div class="payment-method-block paypal-method">
-                                                            <div class="form-group">
-                                                                <label class="control control--radio radio-tab">
-                                                                    <input class="homey_check_gateway" name="payment_gateway" value="paypal" type="radio">
-                                                                    <span class="control-text"><?php esc_html_e('Paypal', 'homey'); ?></span>
-                                                                    <span class="control__indicator"></span>
-                                                                    <span class="radio-tab-inner"></span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <?php } ?>
+        ?>
+        <div class="reservation-renter-pays">
+            <div class="reservation-payment-details" style="width:50%;">
+                <h2><?php esc_html_e('Pay through Stripe','homey-child');?></h2>
+                <div class="reservation-payment-details-inner" style="width:100%;">
+                    <div class="reservation-payment-details-inner-left">
+                        <img width="120" src="<?php echo $listing_image_url; ?>" alt="<?php echo $listing_title; ?>">
+                    </div>
+                    <div class="reservation-payment-details-inner-right" style="width:100%;">
+                        <h3 class="mb-0"><?php echo $listing_title; ?></h3>
+                        <?php 
+                        $reservation_type = get_post_meta($reservation_id, 'reservation_type', true);
+                        if($reservation_type == 'overtime_policy'){
 
-                                                        <?php if($enable_stripe != 0) { ?>
-                                                        <div class="payment-method-block stripe-method">
-                                                            <div class="form-group">
-                                                                <label class="control control--radio radio-tab">
-                                                                    <input class="homey_check_gateway" name="payment_gateway" value="stripe" type="radio">
-                                                                    <span class="control-text"><?php esc_html_e('Stripe', 'homey'); ?></span>
-                                                                    <span class="control__indicator"></span>
-                                                                    <span class="radio-tab-inner"></span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <?php } ?>
-                                                
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    
-                                        <div class="block-section">
-                                            <div class="block-body">
-                                                <div class="block-left">
-                                                    <h2 class="title"><?php esc_html_e('Payment', 'homey'); ?></h2>
-                                                </div><!-- block-left -->
-                                                <div class="block-right">
-                                                    <?php echo homey_calculate_reservation_cost_day_date_child($reservation_id); ?>
-                                                </div><!-- block-right -->
-                                            </div><!-- block-body -->
-                                        </div><!-- block-section -->
-                                    </div><!-- .block -->
+                            $price_per_night = get_post_meta($reservation_id, 'reservation_overtime_price_per_hour', true);
+                            $total_hours = get_post_meta($reservation_id, 'reservation_overtime_hours', true);
+                            $total_price = get_post_meta($reservation_id, 'reservation_total', true);
 
-                                    <?php 
-                                    if( $enable_stripe != 0 ) {
-                                        homey_stripe_payment_child($reservation_id);
+                            ?>
+                                <ul>
+                                    <li>Total Price <b><?php echo homey_formatted_price($total_price); ?></b></li>
+                                    <li>
+                                        <?php echo homey_formatted_price($price_per_night, true) . ' x ' . esc_attr($total_hours) . ' Hours'; ?>
+                                        <span><?php echo homey_formatted_price($total_price, true); ?></span>
+                                    </li>
+                                </ul>
+                            <?php
+                        }else{
+                            ?>
+                            <ul>
+                                <li>Total Price <b><?php echo homey_formatted_price($total_price); ?></b></li>
+                                <li>
+                                    <?php echo homey_formatted_price($price_per_night, true) . ' x ' . esc_attr($total_hours) . ' Hours'; ?>
+                                    <span><?php echo homey_formatted_price($nights_total_price, true); ?></span>
+                                </li>
+                                <?php
+                                    if (!empty($extra_prices_html)) {
+                                        echo $extra_prices_html;
+                                    }
+
+                                    if(!empty($taxes) && $taxes > 0){
+                                        echo '<li>Services Fee <span>' . homey_formatted_price($taxes, false) . '</span></li>';
                                     }
                                     ?>
-
-                                    <?php if($reservation_status == 'available') { ?>
-                                    <div id="without_stripe" class="payment-buttons">
-                                        <div id="homey_notify"></div>
-                                        <input type="hidden" name="reservation_id" id="reservation_id" value="<?php echo intval($reservation_id); ?>">
-                                        <input type="hidden" name="checkout-security" id="checkout-security" value="<?php echo wp_create_nonce('checkout-security-nonce'); ?>"/>
-
-                                        <?php
-                                        if($is_hourly == 'yes') { ?>
-                                            <button id="make_hourly_booking_payment" class="btn btn-success btn-full-width"><?php esc_html_e('Process Payment', 'homey'); ?></button>
-                                        <?php    
-                                        } else { ?>
-                                            <button id="make_booking_payment" class="btn btn-success btn-full-width"><?php esc_html_e('Process Payment', 'homey'); ?></button>
-                                        <?php
-                                        }
-                                        ?>
-                                        
-
-                                    </div>
-                                    <?php } ?>
-                                </div><!-- .dashboard-area -->
-                            </form>
-                        <?php } ?>
-                    </div><!-- col-lg-12 col-md-12 col-sm-12 -->
+                            </ul>
+                            <?php
+                        }
+                        ?>
+                    </div>
                 </div>
-            </div><!-- .container-fluid -->
-        </div><!-- .dashboard-content-area -->    
+            </div>
+            <div class="stripe-payment-details-form" style="background-color: #f5f5f5; width:50%; padding: 20px; border-radius: 8px;">
+                <?php
+                // Check for payment success message
+                $success_data = get_transient('renter_payment_success_' . $reservation_id);
+                if ($success_data && isset($_GET['payment']) && $_GET['payment'] === 'success') {
+                    delete_transient('renter_payment_success_' . $reservation_id);
+                    $amount = isset($success_data['amount']) ? $success_data['amount'] : 0;
+                    ?>
+                    <div class="payment-success-message" style="background-color: #d4edda; color: #155724; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                        <h3 style="color: #155724; margin-bottom: 10px;">
+                            <i class="homey-icon homey-icon-check-circle-1" style="color: #28a745;"></i> Payment Completed Successfully!
+                        </h3>
+                        <p style="margin-bottom: 5px; font-size: 16px;">
+                            Your payment of <strong><?php echo homey_formatted_price($amount); ?></strong> has been processed.
+                        </p>
+                        <p style="margin-bottom: 0; font-size: 14px; color: #6c757d;">
+                            Your reservation is now under review. The host has 24 hours to confirm.
+                        </p>
+                    </div>
+                    <script>
+                        jQuery(document).ready(function($) {
+                            // Hide form
+                            $("#stripe-payment-form").hide();
+                            
+                            // Clean URL (remove query parameters)
+                            if (window.history && window.history.pushState) {
+                                var cleanUrl = window.location.pathname + "?reservation_id=<?php echo $reservation_id; ?>";
+                                window.history.pushState({path: cleanUrl}, "", cleanUrl);
+                            }
+                        });
+                    </script>
+                    <?php
+                } else {
+                ?>
+                <form id="stripe-payment-form">
+                    <div id="payment-form-errors" style="display: none; background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;"></div>
+                    
+                    <!-- Email Section -->
+                    <div class="form-section" style="margin-bottom: 10px;">
+                        <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Email</h3>
+                        <div class="form-group">
+                            <input type="email" id="payment_email" name="payment_email" class="form-control payment-field" placeholder="email@example.com" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px 15px; height: auto;">
+                            <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address Section -->
+                    <div class="form-section" style="margin-bottom: 10px;">
+                        <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Shipping address</h3>
+                        <div style="background-color: white; border-radius: 8px; padding: 15px;">
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <input type="text" id="full_name" name="full_name" class="form-control payment-field" placeholder="Full name" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <input type="text" id="country" name="country" class="form-control payment-field" placeholder="Add Country" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <input type="text" id="address_line1" name="address_line1" class="form-control payment-field" placeholder="Address line 1" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <input type="text" id="address_line2" name="address_line2" class="form-control" placeholder="Address line 2" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                            </div>
+                            <div class="row" style="margin-bottom: 15px;">
+                                <div class="col-xs-6" style="padding-right: 10px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="text" id="city" name="city" class="form-control payment-field" placeholder="City" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                        <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6" style="padding-left: 10px;">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <input type="text" id="zip" name="zip" class="form-control payment-field" placeholder="ZIP" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                        <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <input type="text" id="state" name="state" class="form-control payment-field" placeholder="State" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method Section -->
+                    <div class="form-section">
+                        <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Payment method</h3>
+                        <div style="background-color: white; border-radius: 8px; padding: 15px;">
+                            <p style="font-size: 14px; color: #666; margin-bottom: 0; text-align: center;">
+                                You will be redirected to Stripe's secure payment page to complete your payment.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" class="reservation_id" name="reservation_id" value="<?php echo $reservation_id;?>" />
+                    <input type="hidden" class="renter_id" name="renter_id" value="<?php echo $renter_id; ?>" />
+                    <input type="hidden" class="owner_id" name="owner_id" value="<?php echo $listing_owner; ?>" />
+                    <button type="submit" class="btn btn-primary renter-pay-reservation-amount btn-full-width mt-15 mb-0" style="font-size: 15px; padding: 7px 0px;"><?php esc_html_e('Pay Now','homey-child');?></button>
+                </form>
+                <?php } ?>
+            </div>
+        </div>  
         
     </div><!-- .user-dashboard-right -->
 

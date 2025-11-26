@@ -172,7 +172,7 @@ function approve_overtime_message(){
     $sender_id = $homey_thread->sender_id;
     $receiver_id = $homey_thread->receiver_id;
     $listing_id = get_post_meta($resevation_id, 'reservation_listing_id', true);
-    $listing_owner_id = $sender_id;
+    $listing_owner_id = $receiver_id;
     $userID = get_current_user_id();
     $booking_dates = get_post_meta($resevation_id, 'reservation_booking_dates', true);
     $guests = get_post_meta($resevation_id, 'reservation_guests', true);

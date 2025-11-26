@@ -254,7 +254,7 @@ function homey_get_prices_child($booking_dates, $total_hours, $listing_id, $gues
 
     $listing_guests = floatval(get_post_meta($listing_id, $prefix . 'guests', true));
     $nightly_price = floatval(get_post_meta($listing_id, $prefix . 'night_price', true));
-    $price_per_night = $nightly_price;
+    $price_per_night = $guests;
     $weekends_price = floatval(get_post_meta($listing_id, $prefix . 'weekends_price', true));
     $weekends_days = get_post_meta($listing_id, $prefix . 'weekends_days', true);
     $priceWeek = floatval(get_post_meta($listing_id, $prefix . 'priceWeek', true)); // 7 Nights
@@ -273,21 +273,6 @@ function homey_get_prices_child($booking_dates, $total_hours, $listing_id, $gues
 
     $allow_additional_guests = get_post_meta($listing_id, $prefix . 'allow_additional_guests', true);
 
-    // $check_in = new DateTime($check_in_date);
-    // $check_in_unix = $check_in->getTimestamp();
-    // $check_in_unix_first_day = $check_in->getTimestamp();
-    // $check_out = new DateTime($check_out_date);
-    // $check_out_unix = $check_out->getTimestamp();
-
-    // $time_difference = abs(strtotime($check_in_date) - strtotime($check_out_date));
-    // $days_count = $time_difference / 86400;
-    // $days_count = intval($days_count);
-    // $breakdown_price = '';
-
-    // if($check_in_unix == $check_out_unix){
-    //     $days_count = 1;
-    // }
-
     $days_count = -1;
     if(!empty($booking_dates) && is_array($booking_dates)){
         foreach ($booking_dates as $date){
@@ -300,127 +285,8 @@ function homey_get_prices_child($booking_dates, $total_hours, $listing_id, $gues
         $total_hours_price = $total_hours * $price_per_night;
     }
 
-    // echo "<pre>";
-    // print_r($price_per_night);
-    // wp_die();
-
-    // if (isset($period_price[$check_in_unix]) && isset($period_price[$check_in_unix]['night_price']) && $period_price[$check_in_unix]['night_price'] != 0) {
-    //     $price_per_night = $period_price[$check_in_unix]['night_price'];
-
-    //     $booking_has_custom_pricing = 1;
-    //     $period_days = $period_days + 1;
-    // }
-
-    // if ($days_count >= 7 && $priceWeek != 0) {
-    //     $price_per_night = $priceWeek;
-    // }
-
-    // if ($days_count >= 30 && $priceMonthly != 0) {
-    //     $price_per_night = $priceMonthly;
-    // }
-
-    // Check additional guests price
-    // if ($allow_additional_guests == 'yes' && $guests > 0 && !empty($guests)) {
-    //     if ($guests > $listing_guests) {
-    //         $additional_guests = $guests - $listing_guests;
-
-    //         $guests_price_return = homey_calculate_guests_price($period_price, $check_in_unix, $additional_guests, $additional_guests_price);
-    //         $breakdown_price .= ', total_guests_price prev price=' . $total_guests_price . ' + weekend or reg price=' . $guests_price_return . '<br>';
-
-    //         $total_guests_price = $total_guests_price + $guests_price_return;
-    //     }
-    // }
-
-    // $breakdown_price .= ' * This first date * ' . date('d-m-Y', $check_in_unix) . '<br>';
-
-    // $weekday = date('N', $check_in_unix_first_day);
-    // if (homey_check_weekend($weekday, $weekends_days, $weekends_price)) {
-    //     $booking_has_weekend = 1;
-    // }
-
-    // if ($booking_has_weekend != 1 && isset($period_price[$check_in_unix]) && isset($period_price[$check_in_unix]['night_price']) && $period_price[$check_in_unix]['night_price'] != 0) {
-    //     $returnPrice = $period_price[$check_in_unix]['night_price'];
-    // } else {
-    //     $returnPrice = homey_cal_weekend_price($check_in_unix, $weekends_price, $price_per_night, $weekends_days, $period_price);
-    // }
-
-    // // echo  ' first night price= '. $returnPrice.'<br>';
-    // $nights_total_price = $nights_total_price + $returnPrice;
-    // $html_date_text = date('Y-m-d', $check_in_unix);
-    // $nights_total_price_li_html .= '<li class="out-loop">Price '.$returnPrice .' for '.$html_date_text.'</li>';
-
-    // $check_in->modify('tomorrow');
-    // $check_in_unix = $check_in->getTimestamp();
-
-    // $total_price = $total_price + $returnPrice;
-
-    // $total_price = $total_price * $total_hours;
-
-    // $total_hours_price = $total_price;
-
-    // TOTAL GUEST RPICES
-
     $total_price = $total_hours_price;
     $amount_after_guests = $total_hours_price;
-
-    // $current_index = 0;
-    // while ($check_in_unix < $check_out_unix) {
-    //     // echo ' * This date * '.date('d-m-Y',$check_in_unix).'<br>';
-    //     $current_index++;
-
-    //     $weekday = date('N', $check_in_unix);
-    //     if (homey_check_weekend($weekday, $weekends_days, $weekends_price)) {
-    //         $booking_has_weekend = 1;
-    //     }
-
-    //     if (isset($period_price[$check_in_unix]) && isset($period_price[$check_in_unix]['night_price']) && $period_price[$check_in_unix]['night_price'] != 0) {
-
-    //         $price_per_night = $period_price[$check_in_unix]['night_price'];
-    //         //echo 'cond> <pre>  if( isset('.$period_price[$check_in_unix].') && isset('. $period_price[$check_in_unix]['night_price'] .') && '. $period_price[$check_in_unix]['night_price'] .'!=0 ){';
-    //         //print_r($period_price[$check_in_unix]);
-    //         $breakdown_price .= date('d-m-Y', $check_in_unix) . ' its custom pr ' . $price_per_night . ' custom price <br>';
-
-    //         $booking_has_custom_pricing = 1;
-    //         $period_days = $period_days + 1;
-    //     } else {
-    //         if ($days_count >= 7 && $priceWeek != 0) {
-    //             //do the logic
-    //         } else if ($days_count >= 30 && $priceMonthly != 0) {
-    //             //do the logic
-    //         } else {
-    //             $price_per_night = $nightly_price; // this creates issue for 7+ and 30+ nights issue
-    //         }
-    //     }
-
-    //     // To make this per night per additional guest, we added a condition > 1 night, because once it is added
-    //     // if ($current_index > 0 && $allow_additional_guests == 'yes' && $guests > 0 && !empty($guests)) {
-    //     if ($allow_additional_guests == 'yes' && $guests > 0 && !empty($guests)) {
-    //         if ($guests > $listing_guests) {
-    //             $additional_guests = $guests - $listing_guests;
-
-    //             $guests_price_return = homey_calculate_guests_price($period_price, $check_in_unix, $additional_guests, $additional_guests_price);
-
-    //             $breakdown_price .= ', prev price=' . $total_guests_price . ' + guest price=' . $guests_price_return . '<br>';
-
-    //             $total_guests_price = $total_guests_price + $guests_price_return;
-    //         }
-    //     } // end To make this per night per additional guest, we added a condition > 1 night, because once it is added
-
-    //     $returnPrice = homey_cal_weekend_price($check_in_unix, $weekends_price, $price_per_night, $weekends_days, $period_price);
-
-    //     // echo ' the day => price='. $returnPrice.'<br>';
-
-    //     $nights_total_price = $nights_total_price + $returnPrice;
-    //     $html_date_text = date('Y-m-d', $check_in_unix);
-        // $nights_total_price_li_html .= '<li class="in-loop">Price '.$returnPrice .' for '.$html_date_text.'</li>';
-
-    //     $total_price = $total_price + $returnPrice;
-    //     $breakdown_price .= date('d-m-Y', $check_in_unix) . ' < date ' . $total_price . ' < total price <br>';
-
-    //     $check_in->modify('tomorrow');
-    //     $check_in_unix = $check_in->getTimestamp();
-
-    // }
 
     if ($cleaning_fee_type == 'daily') {
         $cleaning_fee = $cleaning_fee * $days_count;
@@ -876,7 +742,7 @@ function homey_add_reservation() {
 
         $reservation = array(
             'post_title' => $title,
-            'post_status' => 'publish',
+            'post_status' => 'draft',
             'post_type' => 'homey_reservation',
             'post_author' => $userID
         );
@@ -910,11 +776,16 @@ function homey_add_reservation() {
         $reservation_page = homey_get_template_link_dash('template/dashboard-reservations2.php');
         $reservation_detail_link = add_query_arg('reservation_detail', $reservation_id, $reservation_page);
 
+        $payment_link = homey_get_template_link_2('template/dashboard-payment.php');
+        $payment_link = add_query_arg( array(
+                'reservation_id' => $reservation_id,
+            ), $payment_link );
+
         echo json_encode(
             array(
                 'success' => true,
                 'message' => $local['request_sent'],
-                'reservation_detail' => reservation_detail_link($reservation_id),
+                'reservation_detail' => $payment_link,
             )
         );
 
@@ -1124,7 +995,7 @@ if (!function_exists('homey_calculate_reservation_cost_day_date_child')) {
                 $avg_price .= esc_html__('Average Night', 'homey');
                 $avg_price .= '</sub>';
 
-                $output .= '<li class="payment-due">' . esc_attr($local['cs_payment_due']) . ' <span>' . homey_formatted_price($upfront_payment) . '</span></li>';
+                $output .= '<li class="payment-due"> Amount Paid <span>' . homey_formatted_price($upfront_payment) . '</span></li>';
                 $output .= '<input data-avg-price="' . $avg_price . '" type="hidden" name="is_valid_upfront_payment" id="is_valid_upfront_payment" value="' . $upfront_payment . '">';
             }
         }
@@ -1226,6 +1097,9 @@ if (!function_exists('homey_stripe_payment_child')) {
         }
 
         print '<div class="stripe-wrapper" id="homey_stripe_simple"> ';
+        // Get listing ID for the reservation
+        $listing_id = get_post_meta($reservation_id, 'reservation_listing_id', true);
+        
         $metadata = array(
             'reservation_id_for_stripe' => $reservation_id,
             'userID' => $userID,
@@ -1234,6 +1108,7 @@ if (!function_exists('homey_stripe_payment_child')) {
             'child_guest' => 0,
             'is_hourly' => 0,
             'payment_type' => 'reservation_fee',
+            'listing_id' => $listing_id,
             'extra_options' => ($extra_options == '') ? 0 : 1,
             'message' => esc_html__('Reservation Payment', 'homey')
         );
@@ -1384,7 +1259,7 @@ function homey_get_reservation_action($status, $upfront_payment, $payment_link, 
         } elseif ($status == 'booked') {
             $action = '<span class="btn btn-success-outlined ' . esc_attr($class) . '"><i class="homey-icon homey-icon-check-circle-1"></i> ' . esc_html__('Booked', 'homey') . '</span>';
 
-            $action .= '<button class="btn btn-grey-light btn-half-width" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
+            // $action .= '<button class="btn btn-grey-light btn-half-width" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
 
         } elseif ($status == 'waiting_host_payment_verification' && homey_is_host()) {
             $action = '<span class="btn btn-warning-outlined ' . esc_attr($class) . '"> ' . esc_html__('Waiting Approval', 'homey') . '</span>';
@@ -1411,7 +1286,7 @@ function homey_get_reservation_action($status, $upfront_payment, $payment_link, 
         } elseif ($status == 'booked') {
             $action = '<span class="btn btn-success-outlined ' . esc_attr($class) . '"><i class="homey-icon homey-icon-check-circle-1"></i> ' . esc_html__('Booked', 'homey') . '</span>';
 
-            $action .= '<button class="btn btn-grey-light btn-half-width" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
+            // $action .= '<button class="btn btn-grey-light btn-half-width" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
 
         } elseif ($status == 'waiting_host_payment_verification' && homey_is_host()) {
             $action = '<a href="#" data-id="' . intval($ID) . '" class="mark-as-paid btn btn-success ' . esc_attr($class) . '">' . esc_html__('Payment Received? Mark as Paid', 'homey') . '</a>';

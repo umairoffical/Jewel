@@ -302,6 +302,95 @@ Template: homey
     background: linear-gradient(180deg,rgba(241, 94, 117, 1) 0%, rgba(255, 255, 255, 1) 33%);
 }
 
+.reservation-renter-pays {
+    width: 80% !important;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.reservation-payment-details .reservation-payment-details-inner {
+    display: flex;
+    gap: 10px;
+}
+
+.reservation-payment-details h2{
+    text-align: center;
+    border-bottom: 1px solid #d1d1d1;
+    padding-bottom: 10px;
+}
+
+.reservation-payment-details img{
+    border-radius: 5px;
+}
+
+.reservation-payment-details-inner-right ul {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.reservation-payment-details-inner-right ul li {
+    padding: 1px 0px;
+    border-bottom: 1px dotted #c8c8c8;
+    display: flex;
+    justify-content: space-between;
+}
+
+.reservation-payment-details-inner-right ul li:nth-child(3) {
+    border-bottom: none;
+    margin-top: 5px;
+}
+
+.reservation-payment-details-inner-right ul li:last-child {
+    border-bottom: none;
+}
+
+/* Payment Form Validation Styles */
+.stripe-payment-details-form .payment-field.field-has-error {
+    border-color: #dc3545 !important;
+    border-bottom-color: #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
+
+.stripe-payment-details-form .payment-field.field-has-error:focus {
+    outline: none;
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.stripe-payment-details-form .field-error {
+    display: block !important;
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+#payment-form-errors {
+    display: block;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border: 1px solid #f5c6cb;
+}
+
+.stripe-payment-details-form .form-group {
+    position: relative;
+}
+
+.renter-pay-reservation-amount:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
     .hori-daily.search-wrap.search-banner form.clearfix {
         display: grid !important;

@@ -3257,6 +3257,7 @@ jQuery(document).ready(function ($) {
                     if( data.success ) {
                         parentDIV.find('.dashboard-area').prepend(data.message);
                         $this.remove();
+                        window.location.reload();
                     } else {
                         parentDIV.find('.dashboard-area').prepend(data.message);
                     }

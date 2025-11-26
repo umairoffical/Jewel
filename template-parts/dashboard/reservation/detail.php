@@ -193,113 +193,113 @@ if( !homey_give_access($reservationID) ) {
                             <input type="hidden" id="resrv_id" value="<?php echo intval($reservationID); ?>">
                             <?php homey_reservation_notification($reservation_status, $reservationID); ?>
 
-                            <?php if($reservation_status == 'under_review') { ?>
-                                <?php if(homey_is_admin() || homey_is_host()) {?>
-                                    <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
+                            <?php //if($reservation_status == 'under_review') { ?>
+                                <?php //if(homey_is_admin() || homey_is_host()) {?>
+                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
                                         This reservation will be cancelled in
                                         <div class="reservation-time-countdown">
                                             <?php
-                                            $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_time', true));
-                                            $current_time = current_time('timestamp');
-                                            $time_diff = $reservation_time + (48 * 3600) - $current_time;
+                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_time', true));
+                                            // $current_time = current_time('timestamp');
+                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
                                             
-                                            if ($time_diff > 0) {
-                                                $hours = floor($time_diff / 3600);
-                                                $minutes = floor(($time_diff % 3600) / 60);
-                                                $seconds = $time_diff % 60;
+                                            // if ($time_diff > 0) {
+                                            //     $hours = floor($time_diff / 3600);
+                                            //     $minutes = floor(($time_diff % 3600) / 60);
+                                            //     $seconds = $time_diff % 60;
                                                 ?>
                                                 <div id="countdown-timer" 
-                                                        data-end="<?php echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes</span>
-                                                    <span class="counter-timer-seconds"><?php echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds. </span>
+                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
+                                                        data-current="<?php //echo $current_time; ?>">
+                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
+                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes</span>
+                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds. </span>
                                                 </div>
-                                            <?php } ?>
+                                            <?php //} ?>
                                         </div>
                                         Please confirm availability before then.
-                                    </div>
-                                <?php } else { ?>
-                                    <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
+                                    </div> -->
+                                <?php //} else { ?>
+                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
                                         Your reservation is awaiting host confirmation. Please note there are
                                         <div class="reservation-time-countdown">
                                             <?php
-                                            $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_time', true));
-                                            $current_time = current_time('timestamp');
-                                            $time_diff = $reservation_time + (48 * 3600) - $current_time;
+                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_time', true));
+                                            // $current_time = current_time('timestamp');
+                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
                                             
-                                            if ($time_diff > 0) {
-                                                $hours = floor($time_diff / 3600);
-                                                $minutes = floor(($time_diff % 3600) / 60);
-                                                $seconds = $time_diff % 60;
+                                            // if ($time_diff > 0) {
+                                            //     $hours = floor($time_diff / 3600);
+                                            //     $minutes = floor(($time_diff % 3600) / 60);
+                                            //     $seconds = $time_diff % 60;
                                                 ?>
                                                 <div id="countdown-timer" 
-                                                        data-end="<?php echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes and </span>
-                                                    <span class="counter-timer-seconds"><?php echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds </span>
+                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
+                                                        data-current="<?php //echo $current_time; ?>">
+                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
+                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes and </span>
+                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds </span>
                                                 </div>
-                                            <?php } ?>
+                                            <?php //} ?>
                                         </div>
                                         remaining.
-                                    </div>
-                                <?php } ?>
-                            <?php } ?>
+                                    </div> -->
+                                <?php //} ?>
+                            <?php //} ?>
 
-                            <?php if($reservation_status == 'available') { ?>
-                                <?php if(homey_is_admin() || homey_is_host()) {?>
-                                    <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
+                            <?php //if($reservation_status == 'available') { ?>
+                                <?php //if(homey_is_admin() || homey_is_host()) {?>
+                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
                                         Reservation Confirmed! 
                                         <div class="reservation-time-countdown">
                                             <?php
-                                            $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_confirm_date_time', true));
-                                            $current_time = current_time('timestamp');
-                                            $time_diff = $reservation_time + (48 * 3600) - $current_time;
+                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_confirm_date_time', true));
+                                            // $current_time = current_time('timestamp');
+                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
                                             
-                                            if ($time_diff > 0) {
-                                                $hours = floor($time_diff / 3600);
-                                                $minutes = floor(($time_diff % 3600) / 60);
-                                                $seconds = $time_diff % 60;
+                                            // if ($time_diff > 0) {
+                                            //     $hours = floor($time_diff / 3600);
+                                            //     $minutes = floor(($time_diff % 3600) / 60);
+                                            //     $seconds = $time_diff % 60;
                                                 ?>
                                                 <div id="countdown-timer" 
-                                                        data-end="<?php echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes</span>
-                                                    <span class="counter-timer-seconds"><?php echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds. </span>
+                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
+                                                        data-current="<?php //echo $current_time; ?>">
+                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
+                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes</span>
+                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds. </span>
                                                 </div>
-                                            <?php } ?>
+                                            <?php //} ?>
                                         </div>
                                         left before resevation cancellation.
-                                    </div>
-                                <?php } else { ?>
-                                    <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
+                                    </div> -->
+                                <?php //} else { ?>
+                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
                                         Kindly complete the payment before
                                         <div class="reservation-time-countdown">
                                             <?php
-                                            $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_confirm_date_time', true));
-                                            $current_time = current_time('timestamp');
-                                            $time_diff = $reservation_time + (48 * 3600) - $current_time;
+                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_confirm_date_time', true));
+                                            // $current_time = current_time('timestamp');
+                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
                                             
-                                            if ($time_diff > 0) {
-                                                $hours = floor($time_diff / 3600);
-                                                $minutes = floor(($time_diff % 3600) / 60);
-                                                $seconds = $time_diff % 60;
+                                            // if ($time_diff > 0) {
+                                            //     $hours = floor($time_diff / 3600);
+                                            //     $minutes = floor(($time_diff % 3600) / 60);
+                                            //     $seconds = $time_diff % 60;
                                                 ?>
                                                 <div id="countdown-timer" 
-                                                        data-end="<?php echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes and </span>
-                                                    <span class="counter-timer-seconds"><?php echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds </span>
+                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
+                                                        data-current="<?php //echo $current_time; ?>">
+                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
+                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes and </span>
+                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds </span>
                                                 </div>
-                                            <?php } ?>
+                                            <?php //} ?>
                                         </div>
                                         to avoid cancellation of your reservation.
-                                    </div>
-                                <?php } ?>
-                            <?php } ?>
+                                    </div> -->
+                                <?php //} ?>
+                            <?php //} ?>
 
                             <div class="block">
                                 <div class="block-head">

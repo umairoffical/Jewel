@@ -8,10 +8,30 @@ if( isset($_GET['mode']) && $_GET['mode'] != '' ) {
     $homey_booking_type = $_GET['mode'];
 }
 
+// Login User ID
+$full_name = '';
+$user_id = get_current_user_id();
+$first_name = get_user_meta($user_id, 'first_name', true);
+$last_name = get_user_meta($user_id, 'last_name', true);
+if($first_name && $last_name){
+    $full_name = $first_name . ' ' . $last_name;
+} else {
+    $nickname = get_user_meta($user_id, 'nickname', true);
+    if($nickname){
+        $full_name = $nickname;
+    } else {
+        $full_name = '';
+    }
+}
+
 ?>
 <div class="listings-progress-bar mb-20 block">
     <div class="block-body">
-        <h3 class="mb-5">Great progress, KC!</h3>
+        <?php if($full_name){ ?>
+        <h3 class="mb-5">Great progress, <?php echo esc_html($full_name); ?>!</h3>
+        <?php } else { ?>
+        <h3 class="mb-5">Great progress!</h3>
+        <?php } ?>
         <div class="progress mb-5">
             <div class="progress-bar progress-bar-success" role="progressbar" 
                     aria-valuenow="43" aria-valuemin="0" aria-valuemax="100" 
