@@ -123,43 +123,52 @@ if ( sizeof( $homey_threads ) != 0 ) :
 		$last_sender_display_name = $last_sender_first_name.' '.$last_sender_last_name;
 	}
 
+	$post_status = get_post_status($thread->listing_id);
+
     if(!isset($last_message->id)){ continue; }
-	?>
 
-    <div class="table-row <?php echo esc_attr($thread_class); ?>">
-	    <div class="table-col clearfix">
-	        <div class="media user-list-media">
-	            <div class="media-left">
-	                <span class="media-signal">
-	                    <!-- <img src="<?php echo esc_url( $user_custom_picture ); ?>" class="img-circle" alt="<?php esc_attr_e('Image', 'homey'); ?>" width="40" height="40"> -->
-	                    <?php echo $user_custom_picture; ?>
-	                </span>
-	            </div>
-	            <div class="media-body">
-	                <strong><?php echo ucfirst( $sender_display_name ); ?></strong><br>
-	                <?php echo date_i18n( homey_convert_date(homey_option('homey_date_format')).' '.get_option('time_format'), strtotime( $last_message->time ) ); ?>
-	            </div>
-	        </div>
-	    </div>
-	    <div class="table-col clearfix short-message-block">
-	        <strong><?php esc_html_e('Message', 'homey');?></strong><br>
-            <i><?php echo esc_attr($last_sender_display_name); ?>:</i>
-            <?php //echo str_replace("\\", "", html_entity_decode($last_message->message)); ?>
-            <?php echo $last_message->message; ?>
-            <br>
-            <strong><?php esc_html_e('Reservation Detail', 'homey');?></strong>
-            <i><a href="<?php echo esc_url( $reservation_url ).'&message='.intval($last_message->id); ?>"><?php echo get_the_title( $thread->listing_id ); ?></a></i>
-	    </div>
-	    <div class="table-col clearfix">
-	        <div class="custom-actions">
-	        	<?php if($user_can_reply) { ?>
-	        	<!-- <button class="homey_delete_msg_thread btn-action" data-thread-id="<?php //echo intval($thread_id); ?>" data-sender-id="<?php //echo intval($sender_id); ?>" data-receiver-id="<?php //echo intval($receiver_id); ?>" data-toggle="tooltip" data-placement="top" title="<?php //esc_attr_e('Delete', 'homey'); ?>"><i class="homey-icon homey-icon-bin-1-interface-essential"></i></button> -->
-	        	<?php } ?>
-	            <a href="<?php echo esc_url( $thread_link ).'#message-'.intval($last_message->id); ?>" class="btn-action" data-toggle="tooltip" data-placement="top" data-original-title="<?php esc_attr_e('View', 'homey');?>"><i class="homey-icon homey-icon-move-back-interface-essential"></i></a>
-	        </div>
-	    </div>
-	</div><!-- .table-row -->
+		if($post_status == 'publish'):
+		?>
 
+			<div class="table-row <?php echo esc_attr($thread_class); ?>">
+				<div class="table-col clearfix">
+					<div class="media user-list-media">
+						<div class="media-left">
+							<span class="media-signal">
+								<!-- <img src="<?php echo esc_url( $user_custom_picture ); ?>" class="img-circle" alt="<?php esc_attr_e('Image', 'homey'); ?>" width="40" height="40"> -->
+								<?php echo $user_custom_picture; ?>
+							</span>
+						</div>
+						<div class="media-body">
+							<strong><?php echo ucfirst( $sender_display_name ); ?></strong><br>
+							<?php echo date_i18n( homey_convert_date(homey_option('homey_date_format')).' '.get_option('time_format'), strtotime( $last_message->time ) ); ?>
+						</div>
+					</div>
+				</div>
+				<div class="table-col clearfix short-message-block">
+					<a href="<?php echo esc_url( $thread_link ).'#message-'.intval($last_message->id); ?>" class="short-message-link">
+						<strong><?php esc_html_e('Message', 'homey');?></strong><br>
+					</a>
+					<a href="<?php echo esc_url( $thread_link ).'#message-'.intval($last_message->id); ?>" class="short-message-link">
+						<i><?php echo esc_attr($last_sender_display_name); ?>:</i>
+					</a>
+					<a href="<?php echo esc_url( $thread_link ).'#message-'.intval($last_message->id); ?>" class="short-message-link">
+						<?php echo $last_message->message; ?>
+					</a>
+					<br>
+					<strong><?php esc_html_e('Reservation Detail', 'homey');?></strong>
+					<i><a href="<?php echo esc_url( $reservation_url ).'&message='.intval($last_message->id); ?>"><?php echo get_the_title( $thread->listing_id ); ?></a></i>
+				</div>
+				<div class="table-col clearfix">
+					<div class="custom-actions">
+						<?php if($user_can_reply) { ?>
+						<!-- <button class="homey_delete_msg_thread btn-action" data-thread-id="<?php //echo intval($thread_id); ?>" data-sender-id="<?php //echo intval($sender_id); ?>" data-receiver-id="<?php //echo intval($receiver_id); ?>" data-toggle="tooltip" data-placement="top" title="<?php //esc_attr_e('Delete', 'homey'); ?>"><i class="homey-icon homey-icon-bin-1-interface-essential"></i></button> -->
+						<?php } ?>
+						<a href="<?php echo esc_url( $thread_link ).'#message-'.intval($last_message->id); ?>" class="btn-action" data-toggle="tooltip" data-placement="top" data-original-title="<?php esc_attr_e('View', 'homey');?>"><i class="homey-icon homey-icon-move-back-interface-essential"></i></a>
+					</div>
+				</div>
+			</div><!-- .table-row -->
 
-<?php }
+		<?php endif;
+	}
 } endif; ?>

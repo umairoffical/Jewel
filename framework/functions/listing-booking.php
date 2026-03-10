@@ -1138,7 +1138,7 @@ function homey_get_reservation_notification($status, $reservation_id = null) {
         if ($status == 'under_review') {
             $notification = '<div class="alert alert-success alert-dismissible" role="alert">
                             <button type="button" class="close" data-hide="alert" aria-label="Close"><i class="homey-icon homey-icon-close"></i></button>
-                            ' . esc_html__('Thank you, your request has been submitted to the host - if approved, payment option will be provided. If not approved, the reservation will be cancelled. The host has 48 hrs to respond.', 'homey') . '
+                            ' . esc_html__("Thanks! Your booking request is in. The host has 24 hours to confirm. If they approve it, you're all set! If they don’t respond or decline, your reservation will be canceled and the payment hold will be released.", 'homey') . '
                         </div>';
         } elseif ($status == 'available') {
             $notification = '<div class="alert alert-info alert-dismissible" role="alert">
@@ -1242,7 +1242,8 @@ function homey_get_reservation_action($status, $upfront_payment, $payment_link, 
         if ($status == 'under_review') {
             $action = '<span class="btn btn-success-outlined ' . esc_attr($class) . '"><i class="homey-icon homey-icon-check-circle-1"></i>' . esc_html__('Awaiting Host Confirmation', 'homey') . '</span>';
 
-            $action .= '<button class="btn btn-grey-light ' . esc_attr($class) . '" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
+            // $action .= '<button class="btn btn-grey-light ' . esc_attr($class) . '" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
+            $action .= '<button class="btn btn-grey-light ' . esc_attr($class) . '" data-toggle="collapse" id="decline-reservation-btn" data-target="#decline-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
 
         } elseif ($status == 'available') {
 
@@ -1260,6 +1261,7 @@ function homey_get_reservation_action($status, $upfront_payment, $payment_link, 
             $action = '<span class="btn btn-success-outlined ' . esc_attr($class) . '"><i class="homey-icon homey-icon-check-circle-1"></i> ' . esc_html__('Booked', 'homey') . '</span>';
 
             // $action .= '<button class="btn btn-grey-light btn-half-width" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
+            $action .= '<button class="btn btn-grey-light btn-half-width mb-10" data-toggle="collapse" id="decline-reservation-btn" data-target="#decline-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
 
         } elseif ($status == 'waiting_host_payment_verification' && homey_is_host()) {
             $action = '<span class="btn btn-warning-outlined ' . esc_attr($class) . '"> ' . esc_html__('Waiting Approval', 'homey') . '</span>';
@@ -1285,6 +1287,7 @@ function homey_get_reservation_action($status, $upfront_payment, $payment_link, 
 
         } elseif ($status == 'booked') {
             $action = '<span class="btn btn-success-outlined ' . esc_attr($class) . '"><i class="homey-icon homey-icon-check-circle-1"></i> ' . esc_html__('Booked', 'homey') . '</span>';
+            $action .= '<button class="btn btn-grey-light btn-half-width mb-10" data-toggle="collapse" id="decline-reservation-btn" data-target="#decline-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
 
             // $action .= '<button class="btn btn-grey-light btn-half-width" data-toggle="collapse" id="cancel-reservation-btn" data-target="#cancel-reservation" aria-expanded="false" aria-controls="collapseExample">' . esc_html__('Cancel', 'homey') . '</button>';
 

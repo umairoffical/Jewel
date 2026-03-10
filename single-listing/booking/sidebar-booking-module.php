@@ -126,8 +126,12 @@ if(!wp_is_mobile()):
                         <button id="instance_reservation" type="button"
                                 class="btn btn-full-width btn-primary"><?php echo esc_html__('Instant Booking', 'homey'); ?></button>
                     <?php } else { ?>
-                        <button id="request_for_reservation" type="button"
+                        <?php if(homey_is_renter() || !is_user_logged_in()):?>
+                            <button id="request_for_reservation" type="button"
                                 class="btn btn-full-width btn-primary"><?php echo esc_html__('Request to Book', 'homey'); ?></button>
+                        <?php else:?>
+                            <span style="display: block; width: 100% !important; background-color: black; color: white; font-weight: 600; padding: 10px; text-align: center; border-radius: 6px; margin-bottom: 10px;"><?php esc_html_e("NOTE: Only Renter can make bookings!", 'homey-child');?></span>
+                        <?php endif; ?>
                         <div class="text-center text-small"><i
                                     class="homey-icon homey-icon-information-circle"></i> <?php echo esc_html__("You won't be charged yet", 'homey'); ?>
                         </div>
@@ -149,8 +153,13 @@ if(!wp_is_mobile()):
         <?php } ?>
 
         <?php if (homey_option('detail_contact_form') != 0 && homey_option('hide-host-contact') != 1) { ?>
-            <button type="button" data-toggle="modal" data-target="#modal-contact-host"
+            <?php if(is_user_logged_in()):?>
+                <button type="button" data-toggle="modal" data-target="#modal-contact-host"
                     class="btn btn-full-width btn-grey-outlined"><?php echo esc_attr($homey_local['pr_cont_host']); ?></button>
+            <?php else : ?>
+                <button type="button" data-toggle="modal" data-target="#modal-register"
+                    class="btn btn-full-width btn-grey-outlined"><?php echo esc_attr($homey_local['pr_cont_host']); ?></button>
+            <?php endif; ?>
         <?php } ?>
 
         <?php if (homey_option('print_button') != 0) { ?>

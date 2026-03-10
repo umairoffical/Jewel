@@ -297,9 +297,15 @@ Template: homey
     gap: 5px;
 }
 
-.media.overtime-message {
-    background: #F15E75;
-    background: linear-gradient(180deg,rgba(241, 94, 117, 1) 0%, rgba(255, 255, 255, 1) 33%);
+.reservation-overtime-policy-section {
+    display: block;
+    margin: 0px 25px;
+    padding: 10px 20px;
+    background-color: #F5DD27;
+    border-radius: 10px;
+    margin-top: 20px;
+    margin-bottom: -20px;
+    box-sizing: border-box;
 }
 
 .reservation-renter-pays {
@@ -398,4 +404,102 @@ Template: homey
     .hori-daily.search-wrap.search-banner form.clearfix .search-type {
         padding-right: 0px !important;
     }
+}
+/* RESERVATION PAGE DESIGN  */
+.dashboard-reservation-content-area {
+    display: flex !important;
+    padding: 30px 30px !important;
+    margin-top: 15px;
+    gap:10px;
+}
+.dashboard-reservation-content-area .reservation-second-content-container {
+    width: 50% !important;
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+}
+.dashboard-reservation-content-area .reservation-first-content-container {
+    width: 50% !important;
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+}
+.reservation-first-content-container .reservation-main-content {
+    background-color: white !important;
+    border-radius: 10px;
+}
+.reservation-price-section .block-title {
+    padding: 10px 15px !important;
+}
+.reservation-price-section .block-body {
+    padding: 10px 15px !important;
+}
+.reservation-site-info-section
+ {
+    background-color: white !important;
+    border-radius: 10px;
+}
+.reservation-price-section .block {
+    border-radius: 10px !important;
+}
+.reservation-location-rules-section .title,
+.reservation-site-info-section .title{
+    border-bottom: 1px dotted #d8dce1;
+    padding: 10px 15px;
+}
+.reservation-location-rules-section .content,
+.reservation-site-info-section .content{
+    padding: 10px 15px;
+}
+.reservation-first-content-container .reservation-main-content h2.title {
+    border-bottom: 1px dotted #d8dce1;
+    padding: 10px 15px !important;
+}
+.reservation-first-content-container .reservation-main-content .content-area .booking-detail-package {
+    padding: 10px 15px;
+    border-bottom: 1px dotted #d8dce1;
+    display: flex;
+    gap: 10px !important;
+}
+.clamp-10-words {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    max-width: 400px;
+}
+@media (max-width: 600px) {
+    .clamp-10-words { max-width: 220px; }
+}
+.reservation-first-content-container .reservation-main-content .content-area .booking-detail-host {
+    padding: 10px 15px;
+    display: flex;
+    gap: 10px;
+}
+.booking-detail-time {
+    padding: 10px 15px;
+    border-bottom: 1px dotted #d8dce1;
+}
+.booking-detail-time p{
+    margin-bottom: 0px;
+}
+.booking-site-info {
+    border-bottom: 1px dotted #d8dce1;
+    padding: 10px 15px;
+}
+.reservation-action-container {
+    display: flex;
+    width: 30% !important;
+    gap: 10px;
+    margin-left: auto;
+    margin-right: 30px !important;
+}
+.short-message-link{
+    color:black !important;
+    text-decoration: none;
+}
+.short-message-link:hover{
+    text-decoration: underline;
+    color: #f15e75 !important;
 }

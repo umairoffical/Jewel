@@ -362,7 +362,7 @@ function homey_scripts() {
             'homey_calendar_months' => homey_calendar_months(),
             'geocomplete_country' => $geocomplete_country,
             'homey_min_book_days' => $homey_min_book_days,
-            'homey_login_register_msg_text' => esc_html__('Error: Something wrong happened. If you are not able to login, contact to Website Administrator.', 'homey'),
+            'homey_login_register_msg_text' => esc_html__('Error: Please contact support if error persists.', 'homey'),
 
         )
     ); // end ajax calls

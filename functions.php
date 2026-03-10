@@ -8,6 +8,13 @@ require_once get_stylesheet_directory() . '/framework/options/stripe-dynamic-set
 // Load Stripe user helper functions
 require_once get_stylesheet_directory() . '/framework/functions/stripe-user-helpers.php';
 
+
+// LOGOUT INACTIVE USER AFTER 15 MINUTES
+add_filter( 'auth_cookie_expiration', 'wpdev_login_session' );
+function wpdev_login_session( $expire ) {
+    return 3600; // 60 minutes in seconds
+}
+
 // Load Stripe classes early
 function homey_child_load_stripe_early() {
     // First check if Stripe is already loaded
@@ -64,6 +71,21 @@ include_once( get_stylesheet_directory() . '/framework/functions/stripe-includes
 
 // Load enhanced payment processor AFTER Stripe classes are loaded
 require_once get_stylesheet_directory() . '/framework/functions/class-homey-payment-processor.php';
+
+// ELEMENTOR WIDGET
+// include_once( get_stylesheet_directory() . '/framework/widgets/become-host-register-form-child.php');
+// add_action('elementor/widgets/register', 'homey_child_register_elementor_widgets');
+// function homey_child_register_elementor_widgets($widgets_manager) {
+//     $widgets_manager->register(new \Homey_Elementor_Register_Child());
+// }
+if (!function_exists('homey_become_host_register_form_child_elementor_widget')) {
+    function homey_become_host_register_form_child_elementor_widget()
+    {
+        require_once get_stylesheet_directory() . '/framework/widgets/become-host-register-form-child.php';
+    }
+}
+add_action('elementor/widgets/register', 'homey_become_host_register_form_child_elementor_widget');
+require_once get_stylesheet_directory() . '/framework/functions/widget-functions.php';
 
 // ENQUEUE STYLES
 function homey_child_enqueue_styles() {
@@ -452,6 +474,11 @@ if( !function_exists('homey_login_child') ) {
             $user = get_user_by('login', $username);
         }
 
+        if(empty($user)) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('Invalid username or email', 'homey-login-register') ) );
+            wp_die();
+        }
+
         $creds = array();
         $creds['user_login'] = $username;
         $creds['user_password'] = $pass;
@@ -460,7 +487,7 @@ if( !function_exists('homey_login_child') ) {
         if(!homey_is_verified_by_email_child($user)){
             echo json_encode( array(
                 'success' => false,
-                'msg' => __('Your profile is not activated. Please contact to administrator to activate your account.', 'homey-login-register')
+                'msg' => __('Account is being verified and will be activated shortly.', 'homey-login-register')
             ) );
 
             wp_die();
@@ -543,4 +570,310 @@ function homey_verify_user_manually() {
 
     echo json_encode( $notification_data );
     wp_die();
+}
+
+// ============================================================
+// DISABLE AUTOMATIC USER DELETION CRON JOB - CRITICAL FIX
+// ============================================================
+// The parent theme has a cron job that deletes unverified users after 24 hours
+// This causes issues with host and renter accounts being deleted automatically
+// The code below COMPLETELY disables this functionality using multiple layers of protection
+
+// LAYER 1: Remove the cron job action hook - prevents the function from running even if scheduled
+remove_action('homey_delete_spam_users', 'homey_delete_spam_users');
+
+// LAYER 2: Disable the email spam filter that deletes users immediately on registration
+remove_filter('wp_mail', 'homey_remove_spam_user_filter_wp_mail');
+
+// LAYER 3: Override the option value to always be 0 (disabled) - prevents scheduling
+add_filter('option_homey_options', 'homey_child_force_disable_user_deletion_option', 1, 2);
+function homey_child_force_disable_user_deletion_option($value, $option) {
+    if (is_array($value) && isset($value['clear_unverified_users'])) {
+        $value['clear_unverified_users'] = 0;
+    }
+    return $value;
+}
+
+// LAYER 4: Also filter the homey_option function directly to always return 0 for this option
+add_filter('homey_option_clear_unverified_users', 'homey_child_force_disable_option_value', 1);
+function homey_child_force_disable_option_value($value) {
+    return 0; // Always return 0 to keep it disabled
+}
+
+// LAYER 5: Clear any scheduled cron events on multiple hooks to catch it at different stages
+function homey_child_disable_user_deletion_cron() {
+    // Remove any scheduled events
+    $timestamp = wp_next_scheduled('homey_delete_spam_users');
+    if ($timestamp) {
+        wp_unschedule_event($timestamp, 'homey_delete_spam_users');
+    }
+    
+    // Clear all scheduled instances of this event (more aggressive)
+    wp_clear_scheduled_hook('homey_delete_spam_users');
+    
+    // Double-check: Remove the action again in case it was re-added
+    remove_action('homey_delete_spam_users', 'homey_delete_spam_users');
+}
+
+// Run on multiple hooks to ensure we catch it regardless of when parent theme loads
+add_action('plugins_loaded', 'homey_child_disable_user_deletion_cron', 1);
+add_action('after_setup_theme', 'homey_child_disable_user_deletion_cron', 1);
+add_action('init', 'homey_child_disable_user_deletion_cron', 1);
+add_action('wp_loaded', 'homey_child_disable_user_deletion_cron', 1);
+
+// LAYER 6: Replace the deletion function with a safe no-op function (ultimate protection)
+add_action('homey_delete_spam_users', 'homey_child_prevent_user_deletion', 999);
+function homey_child_prevent_user_deletion() {
+    // This function does nothing - it's a safety net in case the action wasn't removed
+    // Log for debugging if needed
+    error_log('homey_delete_spam_users was called but prevented by child theme');
+    return; // Do nothing - users will NOT be deleted
+}
+
+
+// SEND EMAIL
+add_action( 'wp_ajax_nopriv_homey_contact_host_child', 'homey_contact_host_child' );
+add_action( 'wp_ajax_homey_contact_host_child', 'homey_contact_host_child' );
+if( !function_exists( 'homey_contact_host_child' ) ) {
+    function homey_contact_host_child() {
+
+        /*$nonce = $_POST['host_detail_ajax_nonce'];
+        if (!wp_verify_nonce( $nonce, 'host-contact-nonce') ) {
+            echo json_encode(array(
+                'success' => false,
+                'msg' => esc_html__('Unverified Nonce!', 'homey-core')
+            ));
+            wp_die();
+        }*/
+
+        $sender_phone = sanitize_text_field( $_POST['phone'] );
+
+        $target_email = sanitize_email($_POST['target_email']);
+        $target_email = is_email($target_email);
+        if (!$target_email) {
+            echo json_encode(array(
+                'success' => false,
+                'msg' => sprintf( esc_html__('%s Target Email address is not properly configured!', 'homey-core'), $target_email )
+            ));
+            wp_die();
+        }
+
+
+        $sender_name = sanitize_text_field($_POST['name']);
+        if ( empty($sender_name) ) {
+            echo json_encode(array(
+                'success' => false,
+                'msg' => esc_html__('Name field is empty!', 'homey-core')
+            ));
+            wp_die();
+        }
+
+        $sender_email = '';
+
+        // $sender_email = sanitize_email($_POST['email']);
+        // $sender_email = is_email($sender_email);
+        // if (!$sender_email) {
+        //     echo json_encode(array(
+        //         'success' => false,
+        //         'msg' => esc_html__('Provided Email address is invalid!', 'homey-core')
+        //     ));
+        //     wp_die();
+        // }
+
+        $sender_msg = wp_kses_post( $_POST['message'] );
+        if ( empty($sender_msg) ) {
+            echo json_encode(array(
+                'success' => false,
+                'msg' => esc_html__('Your message empty!', 'homey-core')
+            ));
+            wp_die();
+        }
+
+        $enable_forms_gdpr = homey_option('enable_forms_gdpr');
+
+        if( $enable_forms_gdpr != 0 ) {
+            $privacy_policy = isset($_POST['privacy_policy']) ? $_POST['privacy_policy'] : '';
+            if ( empty($privacy_policy) ) {
+                echo json_encode(array(
+                    'success' => false,
+                    'msg' => homey_option('forms_gdpr_validation')
+                ));
+                wp_die();
+            }
+        }
+
+        homey_google_recaptcha_callback();
+
+        $email_subject = sprintf( esc_html__('New message sent by %s using contact form at %s', 'homey-core'), $sender_name, get_bloginfo('name') );
+
+        $email_body = esc_html__("You have received a message from: ", 'homey-core') . $sender_name . " <br/>";
+        if (!empty($sender_phone)) {
+            $email_body .= esc_html__("Phone Number : ", 'homey-core') . $sender_phone . " <br/>";
+        }
+        $email_body .= esc_html__("Additional message is as follows.", 'homey-core') . " <br/>";
+        $email_body .= wpautop( $sender_msg ) . " <br/>";
+        $email_body .= sprintf( esc_html__( 'You can contact %s via email %s', 'homey-core'), $sender_name, $sender_email );
+
+
+        $header = 'Content-type: text/html; charset=utf-8' . "\r\n";
+        //$header .= 'From: ' . $sender_name . " <" . $sender_email . "> \r\n";
+
+        $header  .= "From: $sender_name <$sender_email>\r\n";
+        $header .= "MIME-Version: 1.0\r\n";
+
+        if (wp_mail( $target_email, $email_subject, $email_body, $header)) {
+            echo json_encode( array(
+                'success' => true,
+                'msg' => esc_html__("Message Sent Successfully!", 'homey-core')
+            ));
+            wp_die();
+        } else {
+            echo json_encode(array(
+                    'success' => false,
+                    'msg' => esc_html__("Server Error: Make sure Email function working on your server!", 'homey-core')
+                )
+            );
+            wp_die();
+        }
+
+        wp_die();
+    }
+}
+
+
+// HOMEY CHILD LOGIN REGISTER
+add_action( 'wp_ajax_nopriv_homey_register_child_modal', 'homey_register_child_modal' );
+add_action( 'wp_ajax_homey_register_child_modal', 'homey_register_child_modal' );
+
+if( !function_exists('homey_register_child_modal') ) {
+    function homey_register_child_modal() {
+        //$local = homey_get_localization();
+
+        check_ajax_referer('homey_register_nonce', 'homey_register_security');
+
+        $allowed_html = array();
+        homey_google_recaptcha_callback();
+
+        $usermane          = trim( sanitize_text_field( wp_kses( $_POST['username'], $allowed_html ) ));
+        $email             = trim( sanitize_text_field( wp_kses( $_POST['useremail'], $allowed_html ) ));
+        $term_condition    = wp_kses( $_POST['term_condition'], $allowed_html );
+        $enable_password = homey_option('enable_password');
+
+        $response = isset($_POST["g-recaptcha-response"])?$_POST["g-recaptcha-response"]:'';
+
+        $user_role = get_option( 'default_role' );
+
+        if( $user_role == 'administrator' ) {
+            $user_role = 'subscriber';
+        }
+
+        if( isset( $_POST['role'] ) && $_POST['role'] != '' ){
+            $user_role = isset( $_POST['role'] ) ? sanitize_text_field( wp_kses( $_POST['role'], $allowed_html ) ) : $user_role;
+        } else {
+            $user_role = $user_role;
+        }
+
+        if( get_option('users_can_register') != 1 ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('Access denied.', 'homey-login-register') ) );
+            wp_die();
+        }
+
+        $term_condition = ( $term_condition == 'on') ? true : false;
+
+        if( !$term_condition ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('You need to agree with terms & conditions.', 'homey-login-register') ) );
+            wp_die();
+        }
+
+        if( empty( $usermane ) ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('The username field is empty.', 'homey-login-register') ) );
+            wp_die();
+        }
+        if( strlen( $usermane ) < 3 ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('Minimum 3 characters required', 'homey-login-register') ) );
+            wp_die();
+        }
+        if (preg_match("/^[0-9A-Za-z_]+$/", $usermane) == 0) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('Invalid username (do not use special characters or spaces)!', 'homey-login-register') ) );
+            wp_die();
+        }
+        if( username_exists( $usermane ) ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('This username is already registered.', 'homey-login-register') ) );
+            wp_die();
+        }
+
+        // phone 
+        $phone_number = sanitize_text_field( $_POST['reg_form_phone_number'] );
+        if( empty( $phone_number ) ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('The phone number field is empty.', 'homey-login-register') ) );
+            wp_die();
+        }
+
+        if( empty( $email ) ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('The email field is empty.', 'homey-login-register') ) );
+            wp_die();
+        }
+
+        if( email_exists( $email ) ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('This email address is already registered.', 'homey-login-register') ) );
+            wp_die();
+        }
+
+        if( !is_email( $email ) ) {
+            echo json_encode( array( 'success' => false, 'msg' => esc_html__('Invalid email address.', 'homey-login-register') ) );
+            wp_die();
+        }
+
+        if( $enable_password == 'yes' ){
+            $user_pass         = trim( sanitize_text_field(wp_kses( $_POST['register_pass'] ,$allowed_html) ) );
+            $user_pass_retype  = trim( sanitize_text_field(wp_kses( $_POST['register_pass_retype'] ,$allowed_html) ) );
+
+            if ($user_pass == '' || $user_pass_retype == '' ) {
+                echo json_encode( array( 'success' => false, 'msg' => esc_html__('One of the password field is empty!', 'homey-login-register') ) );
+                wp_die();
+            }
+
+            if ($user_pass !== $user_pass_retype ){
+                echo json_encode( array( 'success' => false, 'msg' => esc_html__('Passwords do not match', 'homey-login-register') ) );
+                wp_die();
+            }
+        }
+
+        $enable_forms_gdpr = homey_option('enable_forms_gdpr');
+
+        if( $enable_forms_gdpr != 0 ) {
+            $privacy_policy = isset($_POST['privacy_policy']) ? $_POST['privacy_policy'] : '';
+            if ( empty($privacy_policy) ) {
+                echo json_encode(array(
+                    'success' => false,
+                    'msg' => homey_option('forms_gdpr_validation')
+                ));
+                wp_die();
+            }
+        }
+
+        if($enable_password == 'yes' ) {
+            $user_password = $user_pass;
+        } else {
+            $user_password = wp_generate_password( $length=12, $include_standard_special_chars=false );
+        }
+        $user_id = wp_create_user( $usermane, $user_password, $email );
+
+        if ( is_wp_error($user_id) ) {
+            echo json_encode( array( 'success' => false, 'msg' => $user_id ) );
+            wp_die();
+        } else {
+
+            wp_update_user( array( 'ID' => $user_id, 'role' => $user_role ) );
+
+            if( $enable_password =='yes' ) {
+                echo json_encode( array( 'success' => true, 'msg' => esc_html__('Your account was created and you can login now!', 'homey-login-register') ) );
+            } else {
+                echo json_encode( array( 'success' => true, 'msg' => esc_html__('Registration complete. Please check your email!', 'homey-login-register') ) );
+            }
+            homey_wp_new_user_notification( $user_id, $user_password );
+        }
+        wp_die();
+
+    }
 }

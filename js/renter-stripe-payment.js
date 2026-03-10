@@ -49,53 +49,53 @@ jQuery(document).ready(function($) {
             isValid = false;
         }
         
-        // Validate Full Name
-        var fullName = $('#full_name').val().trim();
-        if (!fullName) {
-            showFieldError('#full_name', 'Full name is required');
-            isValid = false;
-        } else if (fullName.length < 2) {
-            showFieldError('#full_name', 'Full name must be at least 2 characters');
-            isValid = false;
-        }
+        // // Validate Full Name
+        // var fullName = $('#full_name').val().trim();
+        // if (!fullName) {
+        //     showFieldError('#full_name', 'Full name is required');
+        //     isValid = false;
+        // } else if (fullName.length < 2) {
+        //     showFieldError('#full_name', 'Full name must be at least 2 characters');
+        //     isValid = false;
+        // }
         
-        // Validate Country
-        var country = $('#country').val().trim();
-        if (!country) {
-            showFieldError('#country', 'Country is required');
-            isValid = false;
-        }
+        // // Validate Country
+        // var country = $('#country').val().trim();
+        // if (!country) {
+        //     showFieldError('#country', 'Country is required');
+        //     isValid = false;
+        // }
         
-        // Validate Address Line 1
-        var addressLine1 = $('#address_line1').val().trim();
-        if (!addressLine1) {
-            showFieldError('#address_line1', 'Address line 1 is required');
-            isValid = false;
-        }
+        // // Validate Address Line 1
+        // var addressLine1 = $('#address_line1').val().trim();
+        // if (!addressLine1) {
+        //     showFieldError('#address_line1', 'Address line 1 is required');
+        //     isValid = false;
+        // }
         
-        // Validate City
-        var city = $('#city').val().trim();
-        if (!city) {
-            showFieldError('#city', 'City is required');
-            isValid = false;
-        }
+        // // Validate City
+        // var city = $('#city').val().trim();
+        // if (!city) {
+        //     showFieldError('#city', 'City is required');
+        //     isValid = false;
+        // }
         
-        // Validate State
-        var state = $('#state').val().trim();
-        if (!state) {
-            showFieldError('#state', 'State is required');
-            isValid = false;
-        }
+        // // Validate State
+        // var state = $('#state').val().trim();
+        // if (!state) {
+        //     showFieldError('#state', 'State is required');
+        //     isValid = false;
+        // }
         
-        // Validate ZIP
-        var zip = $('#zip').val().trim();
-        if (!zip) {
-            showFieldError('#zip', 'ZIP code is required');
-            isValid = false;
-        } else if (zip.length < 3) {
-            showFieldError('#zip', 'ZIP code must be at least 3 characters');
-            isValid = false;
-        }
+        // // Validate ZIP
+        // var zip = $('#zip').val().trim();
+        // if (!zip) {
+        //     showFieldError('#zip', 'ZIP code is required');
+        //     isValid = false;
+        // } else if (zip.length < 3) {
+        //     showFieldError('#zip', 'ZIP code must be at least 3 characters');
+        //     isValid = false;
+        // }
         
         // Card validation removed - using Stripe Checkout hosted page instead
         

@@ -163,15 +163,18 @@ $wir_zip_code = $user_meta['wir_zip_code'];
                     delete_transient('renter_payment_success_' . $reservation_id);
                     $amount = isset($success_data['amount']) ? $success_data['amount'] : 0;
                     ?>
-                    <div class="payment-success-message" style="background-color: #d4edda; color: #155724; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                    <div class="payment-success-message" style="background-color: #d4edda; color: #155724; padding: 20px; border-radius: 8px; text-align: center;">
                         <h3 style="color: #155724; margin-bottom: 10px;">
-                            <i class="homey-icon homey-icon-check-circle-1" style="color: #28a745;"></i> Payment Completed Successfully!
+                            <i class="homey-icon homey-icon-check-circle-1" style="color: #28a745;"></i> <?php esc_html_e('Payment Completed Successfully!','homey-child');?>
                         </h3>
                         <p style="margin-bottom: 5px; font-size: 16px;">
-                            Your payment of <strong><?php echo homey_formatted_price($amount); ?></strong> has been processed.
+                            <?php printf(esc_html__('Your payment of %s has been processed.','homey-child'), '<strong>'.homey_formatted_price($amount).'</strong>'); ?>
+                        </p>
+                        <p style="margin-bottom: 5px; font-size: 14px; color: #6c757d;">
+                            <?php esc_html_e('A temporary hold has been placed on your account. Once the host confirms your booking, your reservation will be finalized and the full amount will be charged. If the host does not approve within 24 hours, the hold will be released back to your account and the reservation will be automatically canceled.','homey-child');?>
                         </p>
                         <p style="margin-bottom: 0; font-size: 14px; color: #6c757d;">
-                            Your reservation is now under review. The host has 24 hours to confirm.
+                            <?php esc_html_e('You can check the Reservations and Messages tabs in your dashboard for real-time updates and any communication from the host.','homey-child');?>
                         </p>
                     </div>
                     <script>
@@ -188,75 +191,108 @@ $wir_zip_code = $user_meta['wir_zip_code'];
                     </script>
                     <?php
                 } else {
-                ?>
-                <form id="stripe-payment-form">
-                    <div id="payment-form-errors" style="display: none; background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;"></div>
-                    
-                    <!-- Email Section -->
-                    <div class="form-section" style="margin-bottom: 10px;">
-                        <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Email</h3>
-                        <div class="form-group">
-                            <input type="email" id="payment_email" name="payment_email" class="form-control payment-field" placeholder="email@example.com" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px 15px; height: auto;">
-                            <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
-                        </div>
-                    </div>
 
-                    <!-- Shipping Address Section -->
-                    <div class="form-section" style="margin-bottom: 10px;">
-                        <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Shipping address</h3>
-                        <div style="background-color: white; border-radius: 8px; padding: 15px;">
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <input type="text" id="full_name" name="full_name" class="form-control payment-field" placeholder="Full name" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
-                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <input type="text" id="country" name="country" class="form-control payment-field" placeholder="Add Country" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
-                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <input type="text" id="address_line1" name="address_line1" class="form-control payment-field" placeholder="Address line 1" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
-                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 15px;">
-                                <input type="text" id="address_line2" name="address_line2" class="form-control" placeholder="Address line 2" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
-                            </div>
-                            <div class="row" style="margin-bottom: 15px;">
-                                <div class="col-xs-6" style="padding-right: 10px;">
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <input type="text" id="city" name="city" class="form-control payment-field" placeholder="City" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
-                                        <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
-                                    </div>
-                                </div>
-                                <div class="col-xs-6" style="padding-left: 10px;">
-                                    <div class="form-group" style="margin-bottom: 0;">
-                                        <input type="text" id="zip" name="zip" class="form-control payment-field" placeholder="ZIP" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
-                                        <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <input type="text" id="state" name="state" class="form-control payment-field" placeholder="State" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
-                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
-                            </div>
-                        </div>
-                    </div>
+                    $reservation_payment_status = get_post_meta($reservation_id, 'reservation_payment_status', true);
 
-                    <!-- Payment Method Section -->
-                    <div class="form-section">
-                        <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Payment method</h3>
-                        <div style="background-color: white; border-radius: 8px; padding: 15px;">
-                            <p style="font-size: 14px; color: #666; margin-bottom: 0; text-align: center;">
-                                You will be redirected to Stripe's secure payment page to complete your payment.
+                    if(!empty($reservation_payment_status) && $reservation_payment_status == 'paid'){
+
+                        // page explired
+                        ?>
+                        <div class="payment-success-message" style="background-color: #d4edda; color: #155724; padding: 20px; border-radius: 8px; text-align: center;">
+                            <h3 style="color: #155724; margin-bottom: 10px;">
+                                <i class="homey-icon homey-icon-exclamation-circle" style="color: #dc3545;"></i> <?php esc_html_e('Payment Paid!','homey-child');?>
+                            </h3>
+                            <p style="margin-bottom: 0; font-size: 14px; color: #6c757d;">
+                                <?php esc_html_e('You already pay for this booking and page is expired for now. You can not pay again for this booking.','homey-child');?>
                             </p>
                         </div>
-                    </div>
-                    
-                    <input type="hidden" class="reservation_id" name="reservation_id" value="<?php echo $reservation_id;?>" />
-                    <input type="hidden" class="renter_id" name="renter_id" value="<?php echo $renter_id; ?>" />
-                    <input type="hidden" class="owner_id" name="owner_id" value="<?php echo $listing_owner; ?>" />
-                    <button type="submit" class="btn btn-primary renter-pay-reservation-amount btn-full-width mt-15 mb-0" style="font-size: 15px; padding: 7px 0px;"><?php esc_html_e('Pay Now','homey-child');?></button>
-                </form>
-                <?php } ?>
+                        <?php
+
+                    }else{
+                    ?>
+                    <form id="stripe-payment-form">
+                        <div id="payment-form-errors" style="display: none; background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;"></div>
+                        
+                        <!-- Email Section -->
+                        <div class="form-section" style="margin-bottom: 10px;">
+                            <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Email</h3>
+                            <div class="form-group">
+                                <?php
+                                $current_user = wp_get_current_user();
+                                $email = $current_user->user_email;
+                                if(!empty($email)){
+                                    ?>
+                                    <input type="email" id="payment_email" name="payment_email" class="form-control payment-field" value="<?php echo $email; ?>" placeholder="email@example.com" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px 15px; height: auto;">
+                                    <?php
+                                }else{
+                                    ?>
+                                    <input type="email" id="payment_email" name="payment_email" class="form-control payment-field" placeholder="email@example.com" style="border-radius: 8px; border: 1px solid #ddd; padding: 12px 15px; height: auto;">
+                                    <?php
+                                }
+                                ?>
+                                <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address Section -->
+                        <!-- <div class="form-section" style="margin-bottom: 10px;">
+                            <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Shipping address</h3>
+                            <div style="background-color: white; border-radius: 8px; padding: 15px;">
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <input type="text" id="full_name" name="full_name" class="form-control payment-field" placeholder="Full name" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                    <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <input type="text" id="country" name="country" class="form-control payment-field" placeholder="Add Country" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                    <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <input type="text" id="address_line1" name="address_line1" class="form-control payment-field" placeholder="Address line 1" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                    <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <input type="text" id="address_line2" name="address_line2" class="form-control" placeholder="Address line 2" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                </div>
+                                <div class="row" style="margin-bottom: 15px;">
+                                    <div class="col-xs-6" style="padding-right: 10px;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <input type="text" id="city" name="city" class="form-control payment-field" placeholder="City" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                            <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6" style="padding-left: 10px;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <input type="text" id="zip" name="zip" class="form-control payment-field" placeholder="ZIP" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                            <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <input type="text" id="state" name="state" class="form-control payment-field" placeholder="State" style="border: none; border-bottom: 1px solid #ddd; border-radius: 0; padding: 12px 0; box-shadow: none; margin-bottom:0px;">
+                                    <span class="field-error" style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;"></span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- Payment Method Section -->
+                        <div class="form-section">
+                            <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Payment method</h3>
+                            <div style="background-color: white; border-radius: 8px; padding: 15px;">
+                                <p style="font-size: 14px; color: #666; margin-bottom: 0; text-align: center;">
+                                    You will be redirected to Stripe's secure payment page to complete your payment.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" class="reservation_id" name="reservation_id" value="<?php echo $reservation_id;?>" />
+                        <input type="hidden" class="renter_id" name="renter_id" value="<?php echo $renter_id; ?>" />
+                        <input type="hidden" class="owner_id" name="owner_id" value="<?php echo $listing_owner; ?>" />
+                        <button type="submit" class="btn btn-primary renter-pay-reservation-amount btn-full-width mt-15 mb-0" style="font-size: 15px; padding: 7px 0px;"><?php esc_html_e('Pay Now','homey-child');?></button>
+                    </form>
+                    <?php 
+                    }
+                } 
+                ?>
             </div>
         </div>  
         

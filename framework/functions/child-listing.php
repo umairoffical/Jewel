@@ -1009,7 +1009,7 @@ if( !function_exists('homey_host_contact_child') ) {
         if ( wp_mail( $target_email, $subject, $body, $header ) ) {
             echo json_encode( array(
                 'success' => true,
-                'msg' => esc_html__("Email Sent Successfully!", 'homey-core')
+                'msg' => esc_html__("Message sent successfully!", 'homey-core')
             ));
             wp_die();
         } else {

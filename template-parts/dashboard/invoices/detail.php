@@ -67,7 +67,9 @@ $cancellation_policy = homey_option('cancellation_policy_text');
 $overtime_policy = homey_option('overtime_policy_text');
 $site_rep_name = get_post_meta($listing_id, 'homey_rep_name', true);
 $welcome_message = get_post_meta($listing_id, 'homey_instructions', true);
-$location_rules = get_post_meta($listing_id, 'homey_additional_rules', true);
+// Get the location rules and remove HTML tags (for nice, clean display in <ul><li>)
+$location_rules_raw = get_post_meta($listing_id, 'homey_additional_rules', true);
+$location_rules = wp_strip_all_tags($location_rules_raw);
 $booking_dates = get_post_meta($reservationID, 'reservation_booking_dates', true);
 ?>
 <div class="invoice-detail block">

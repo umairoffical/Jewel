@@ -61,7 +61,7 @@ $forms_gdpr_href_link = homey_option('forms_gdpr_href_link');
                         <?php if($facebook_login == 'yes' || $google_login == 'yes') { ?>
                         <p class="text-center"><strong><?php echo esc_html__('Register with your email', 'homey'); ?></strong></p>
                         <?php } ?>
-                        <form>
+                        <form class="homey_modal_register_form_child">
                             <div class="form-group">
                                 <input name="username" type="text" class="form-control email-input-1" placeholder="<?php esc_attr_e('Name','homey'); ?>" />
                             </div>
@@ -94,7 +94,7 @@ $forms_gdpr_href_link = homey_option('forms_gdpr_href_link');
                             </select>
                             <?php } ?>
 
-                            <input type="hidden" name="role" value="homey_host">
+                            <input type="hidden" name="role" value="homey_renter">
 
                             <?php if(homey_show_google_reCaptcha()){ ?>
                             <div class="bootstrap-select">
@@ -118,7 +118,7 @@ $forms_gdpr_href_link = homey_option('forms_gdpr_href_link');
                             <?php } ?>
 
                             <?php wp_nonce_field( 'homey_register_nonce', 'homey_register_security' ); ?>
-                            <input type="hidden" name="action" value="homey_register">
+                            <input type="hidden" name="action" value="homey_register_child_modal">
                             <button type="submit" class="homey-register-button btn btn-primary btn-full-width"><?php echo esc_html__('Register', 'homey'); ?></button>
                         </form>
                         <p class="text-center"><?php echo esc_html__('Do you already have an account?', 'homey'); ?> <a href="#" data-toggle="modal" data-target="#modal-login" data-dismiss="modal"><?php echo esc_html__('Log In', 'homey'); ?></a></p>

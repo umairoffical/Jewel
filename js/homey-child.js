@@ -487,12 +487,10 @@ jQuery(document).ready(function($) {
 
     });
 
-    // 
-
-    $("textarea#message").on('input', function(){
-        // Remove any numbers from the text
-        var text = $(this).val();
-        text = text.replace(/[0-9]/g, '');
-        $(this).val(text);
-    });
+    // $("textarea#message").on('input', function(){
+    //     // Remove any numbers from the text
+    //     var text = $(this).val();
+    //     text = text.replace(/[0-9]/g, '');
+    //     $(this).val(text);
+    // });
 }); 

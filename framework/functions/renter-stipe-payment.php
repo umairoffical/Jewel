@@ -1404,15 +1404,15 @@ function homey_decline_reservation() {
     $renter = homey_usermeta($listing_renter);
     $renter_email = $renter['email'];
 
-    if ($listing_owner != $userID && !homey_is_admin()) {
-        echo json_encode(
-            array(
-                'success' => false,
-                'message' => $local['listing_owner_text']
-            )
-        );
-        wp_die();
-    }
+    // if ($listing_owner != $userID && !homey_is_admin()) {
+    //     echo json_encode(
+    //         array(
+    //             'success' => false,
+    //             'message' => $local['listing_owner_text']
+    //         )
+    //     );
+    //     wp_die();
+    // }
 
     // Set reservation status from under_review to declined
     update_post_meta($reservation_id, 'reservation_status', 'declined');

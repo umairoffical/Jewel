@@ -68,6 +68,8 @@ if(!empty($reservationID) && $post_type == 'homey_reservation') {
     $location_rules = get_post_meta($listing_id, 'homey_additional_rules', true);
     $booking_dates = get_post_meta($reservationID, 'reservation_booking_dates', true);
 
+    $address = get_post_meta($listing_id, 'homey_listing_full_address', true);
+
     if(!empty($extra_expenses)) {
         $expenses_total_price = $extra_expenses['expenses_total_price'];
         $total_price = $total_price + $expenses_total_price;
@@ -178,390 +180,203 @@ if(!empty($reservationID) && $post_type == 'homey_reservation') {
 $cancellation_policy = homey_option('cancellation_policy_text');
 $overtime_policy = homey_option('overtime_policy_text');
 
+$reservation_type = get_post_meta($reservationID, 'reservation_type', true);
+$reservation_confirm_date_time = get_post_meta($reservationID, 'reservation_confirm_date_time', true);
+$hours_diff = 0;
+
+if ($reservation_type == 'overtime_policy' && !empty($reservation_confirm_date_time)) {
+    $reservation_confirm_timestamp = strtotime($reservation_confirm_date_time);
+    $current_timestamp = time();
+
+    $hours_diff = ($reservation_confirm_timestamp - $current_timestamp) / 3600;
+}
+
 if( !homey_give_access($reservationID) ) {
     echo('Are you kidding?');
     
 } else {
 ?>
 <div class="user-dashboard-right dashboard-with-sidebar">
+    <?php
+    if($reservation_status == 'declined') {
+        get_template_part('template-parts/dashboard/reservation/declined');
+    } elseif($reservation_status == 'cancelled') {
+        get_template_part('template-parts/dashboard/reservation/cancelled');
+    } else {
+        get_template_part('template-parts/dashboard/reservation/decline-form');
+    }
+    ?>
     <?php if ($post_type == 'homey_reservation') { ?>
-        <div class="dashboard-content-area dashboard-reservation-page">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        <div class="dashboard-area">
-                            <input type="hidden" id="resrv_id" value="<?php echo intval($reservationID); ?>">
-                            <?php homey_reservation_notification($reservation_status, $reservationID); ?>
 
-                            <?php //if($reservation_status == 'under_review') { ?>
-                                <?php //if(homey_is_admin() || homey_is_host()) {?>
-                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
-                                        This reservation will be cancelled in
-                                        <div class="reservation-time-countdown">
-                                            <?php
-                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_time', true));
-                                            // $current_time = current_time('timestamp');
-                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
-                                            
-                                            // if ($time_diff > 0) {
-                                            //     $hours = floor($time_diff / 3600);
-                                            //     $minutes = floor(($time_diff % 3600) / 60);
-                                            //     $seconds = $time_diff % 60;
-                                                ?>
-                                                <div id="countdown-timer" 
-                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php //echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes</span>
-                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds. </span>
-                                                </div>
-                                            <?php //} ?>
-                                        </div>
-                                        Please confirm availability before then.
-                                    </div> -->
-                                <?php //} else { ?>
-                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
-                                        Your reservation is awaiting host confirmation. Please note there are
-                                        <div class="reservation-time-countdown">
-                                            <?php
-                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_time', true));
-                                            // $current_time = current_time('timestamp');
-                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
-                                            
-                                            // if ($time_diff > 0) {
-                                            //     $hours = floor($time_diff / 3600);
-                                            //     $minutes = floor(($time_diff % 3600) / 60);
-                                            //     $seconds = $time_diff % 60;
-                                                ?>
-                                                <div id="countdown-timer" 
-                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php //echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes and </span>
-                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds </span>
-                                                </div>
-                                            <?php //} ?>
-                                        </div>
-                                        remaining.
-                                    </div> -->
-                                <?php //} ?>
-                            <?php //} ?>
+        <?php if($hours_diff > 48): ?>
+            <div class="reservation-overtime-policy-section" style="background-color: #f8d7da; padding: 10px; border-radius: 5px; border: 1px solid #f5c6cb; color: #721c24;">
+                <p style="margin-bottom: 0px;"><?php esc_html_e('This booking has expired. Please request for new reservation.','homey-child');?></p>
+            </div>
+        <?php else: ?>
 
-                            <?php //if($reservation_status == 'available') { ?>
-                                <?php //if(homey_is_admin() || homey_is_host()) {?>
-                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
-                                        Reservation Confirmed! 
-                                        <div class="reservation-time-countdown">
-                                            <?php
-                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_confirm_date_time', true));
-                                            // $current_time = current_time('timestamp');
-                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
-                                            
-                                            // if ($time_diff > 0) {
-                                            //     $hours = floor($time_diff / 3600);
-                                            //     $minutes = floor(($time_diff % 3600) / 60);
-                                            //     $seconds = $time_diff % 60;
-                                                ?>
-                                                <div id="countdown-timer" 
-                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php //echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes</span>
-                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds. </span>
-                                                </div>
-                                            <?php //} ?>
-                                        </div>
-                                        left before resevation cancellation.
-                                    </div> -->
-                                <?php //} else { ?>
-                                    <!-- <div class="alert alert-danger reservation-time-countdown-alert" role="alert">
-                                        Kindly complete the payment before
-                                        <div class="reservation-time-countdown">
-                                            <?php
-                                            // $reservation_time = strtotime(get_post_meta($reservationID, 'reservation_confirm_date_time', true));
-                                            // $current_time = current_time('timestamp');
-                                            // $time_diff = $reservation_time + (48 * 3600) - $current_time;
-                                            
-                                            // if ($time_diff > 0) {
-                                            //     $hours = floor($time_diff / 3600);
-                                            //     $minutes = floor(($time_diff % 3600) / 60);
-                                            //     $seconds = $time_diff % 60;
-                                                ?>
-                                                <div id="countdown-timer" 
-                                                        data-end="<?php //echo $reservation_time + (48 * 3600); ?>"
-                                                        data-current="<?php //echo $current_time; ?>">
-                                                    <span class="counter-timer-hours"><?php //echo str_pad($hours, 2, '0', STR_PAD_LEFT); ?> hours</span>,
-                                                    <span class="counter-timer-minutes"><?php //echo str_pad($minutes, 2, '0', STR_PAD_LEFT); ?> minutes and </span>
-                                                    <span class="counter-timer-seconds"><?php //echo str_pad($seconds, 2, '0', STR_PAD_LEFT); ?> seconds </span>
-                                                </div>
-                                            <?php //} ?>
-                                        </div>
-                                        to avoid cancellation of your reservation.
-                                    </div> -->
-                                <?php //} ?>
-                            <?php //} ?>
-
-                            <div class="block">
-                                <div class="block-head">
-                                    <div class="block-left block-count-down-timer-container">
-                                        <h2 class="title"><?php echo esc_attr($homey_local['reservation_label']); ?>
-                                        <?php $wc_order_id = get_wc_order_id(get_the_ID()); $wc_order_id_txt = $wc_order_id > 0 ? ', wc#'.$wc_order_id.' ' : ' '; ?>
-                                        <?php echo '#'.$reservationID.$wc_order_id_txt.' '.homey_get_reservation_label($reservation_status, $reservationID); ?></h2>
-                                    </div><!-- block-left -->
-                                    <div class="block-right">
-                                        <div class="custom-actions">
-
-                                            <?php if($reservation_status == 'booked' && $current_date_unix >= strtotime($check_in)) { ?>
-                                            <?php //if($reservation_status == 'booked') { ?>
-                                            <button class="btn-action" data-toggle="collapse" data-target="#review-form" aria-expanded="false" aria-controls="collapseExample" data-placement="top" data-original-title="<?php echo esc_attr($homey_local['review_btn']); ?>">
-                                                <i class="homey-icon homey-icon-qpencil-interface-essential"></i>
-                                            </button>
-                                            <?php } ?>
-
-                                            <button onclick="window.print();" class="btn-action" data-toggle="tooltip" data-placement="top" data-original-title="<?php echo esc_attr($homey_local['print_btn']); ?>"><i class="homey-icon homey-icon-print-text"></i></button>
-
-                                            <a href="<?php echo esc_url($messages_page_link); ?>" class="btn-action" data-toggle="tooltip" data-placement="top" data-original-title="<?php echo esc_attr($homey_local['msg_send_btn']); ?>"><i class="homey-icon homey-icon-unread-emails"></i></a>
-
-                                            <a href="<?php echo esc_url($back_to_list); ?>" class="btn-action" data-toggle="tooltip" data-placement="top" data-original-title="<?php echo esc_attr($homey_local['back_btn']); ?>"><i class="homey-icon homey-icon-move-back-interface-essential"></i></a>
-                                        </div><!-- custom-actions -->
-                                    </div><!-- block-right -->
-                                </div><!-- block-head -->
-
-                                <?php
-                                if($reservation_status == 'booked' && homey_listing_guest($reservationID)) {
-                                    get_template_part('template-parts/dashboard/reservation/review-form');
-                                } elseif($reservation_status == 'booked') {
-                                    get_template_part('template-parts/dashboard/reservation/review-host');
-                                }
-
-                                get_template_part('template-parts/dashboard/reservation/add-extra-expenses');
-                                get_template_part('template-parts/dashboard/reservation/discount');
-
-                                if($reservation_status == 'declined') {
-                                    get_template_part('template-parts/dashboard/reservation/declined');
-
-                                } elseif($reservation_status == 'cancelled') {
-                                    get_template_part('template-parts/dashboard/reservation/cancelled');
-                                } else {
-
-
-                                        get_template_part('template-parts/dashboard/reservation/cancel-form');
-
-                                        if(!homey_listing_guest($reservationID)) {
-                                            get_template_part('template-parts/dashboard/reservation/decline-form');
-                                        }
-
-                                }
-
-                                $res_no_of_days = isset($res_meta['no_of_days']) ? $res_meta['no_of_days'] : 0;
-
-                                if($res_no_of_days > 1) {
-                                    $night_label = ($booking_type == 'per_day_date') ? homey_option('glc_day_dates_label') : homey_option('glc_day_nights_label');
-                                } else {
-                                    $night_label = ($booking_type == 'per_day_date') ? homey_option('glc_day_date_label') : homey_option('glc_day_night_label');
-                                }
-
-                                $no_of_weeks = isset($res_meta['total_weeks_count']) ? $res_meta['total_weeks_count'] : 0;
-                                $no_of_months = isset($res_meta['total_months_count']) ? $res_meta['total_months_count'] : 0;
-
-                                if($no_of_weeks > 1) {
-                                    $week_label = homey_option('glc_weeks_label');
-                                } else {
-                                    $week_label = homey_option('glc_week_label');
-                                }
-
-                                if($no_of_months > 1) {
-                                    $month_label = homey_option('glc_months_label');
-                                } else {
-                                    $month_label = homey_option('glc_month_label');
-                                }
-
-                                ?>
-
-                                <?php if(!empty($welcome_message) && $reservation_status != 'under_review') { ?>
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e("Site Rep & Day of Instructions",'homey-child'); ?></h2>
-                                        </div><!-- block-left -->
-                                        <div class="block-right">
-                                            <b><?php echo $site_rep_name; ?></b>
-                                            <p><?php echo esc_attr($welcome_message); ?></p>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-                                <?php } ?>
-
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <ul class="detail-list">
-                                                <li><strong><?php echo esc_attr($homey_local['date_label']); ?>:</strong></li>
-                                                <li><?php echo translate_month_names(esc_attr( get_the_date( get_option( 'date_format' ), $reservationID )));?>
-                                                <br>
-                                                <?php echo esc_attr( get_the_date( homey_time_format(), $reservationID ));?> </li>
-                                            </ul>
-                                        </div><!-- block-left -->
-                                        <div class="block-right">
-                                            <?php if(!empty($renter_info['photo'])) {
-                                                echo '<a href="'.esc_url($renter_info['link']).'" target="_blank">'.$renter_info['photo'].'</a>';
-                                            }?>
-                                            <ul class="detail-list">
-                                                <li><strong><?php esc_html_e('From', 'homey'); ?>:</strong>
-                                                    <a href="<?php echo esc_url($renter_info['link']); ?>" target="_blank">
-                                                        <?php echo esc_html__(esc_attr($renter_info['name']), 'homey'); ?>
-                                                    </a>
-                                                </li>
-                                                <?php if(@$booking_detail_hide_fields['renter_information_on_detail'] == 0){ ?>
-                                                    <li><strong><?php esc_html_e('Renter Detail', 'homey'); ?>:&nbsp;</strong><?php echo esc_attr($renter_name_while_booking).' <a title="'.esc_html__('Click to call', 'homey').'" href="tel:'.$renter_phone.'">'. $renter_phone.'</a></li>'; ?>
-                                                <?php } ?>
-                                                <li><strong><?php esc_html_e('Listing Name', 'homey'); ?>:&nbsp;</strong><?php echo get_the_title($listing_id); ?></li>
-                                            </ul>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e('Details', 'homey'); ?></h2>
-                                        </div><!-- block-left -->
-                                        <div class="block-right">
-                                            <ul class="detail-list detail-list-2-cols">
-                                                <li>
-                                                    <?php echo esc_html__('Rental Start', 'homey'); ?>:
-                                                    <strong><?php echo homey_get_booking_start_date($reservationID); ?></strong>
-                                                </li>
-                                                <li>
-                                                    <?php echo esc_html__('Rental End', 'homey'); ?>:
-                                                    <strong><?php echo homey_get_booking_end_date($reservationID); ?></strong>
-                                                </li>
-                                                <li>
-                                                    <?php echo esc_html__('Total Hours', 'homey'); ?>:
-                                                    <strong><?php echo $total_hours; ?></strong>
-                                                </li>
-                                                <li>
-                                                    <?php echo esc_html__('Max Guests', 'homey'); ?>:
-                                                    <strong><?php echo $guests_range; ?></strong>
-                                                </li>
-                                            </ul>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-
-                                <?php if(!empty($booking_dates)){?>
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e('Booking Dates', 'homey'); ?></h2>
-                                        </div><!-- block-left -->
-                                        <div class="block-right reservation-booking-dates">
-                                            <?php
-                                            if (!empty($booking_dates)) {
-                                                foreach ($booking_dates as $booking_date) {
-                                                    if (!empty($booking_date['arrive_date'])) {
-                                                        $arrive_date = $booking_date['arrive_date'];
-                                                        $start_hour = isset($booking_date['start_hour']) ? $booking_date['start_hour'] : '';
-                                                        $end_hour = isset($booking_date['end_hour']) ? $booking_date['end_hour'] : '';
-                                                        // $formatted_date = date('d-m-y', strtotime($arrive_date));
-                                                        
-                                                        // Ensure proper AM/PM formatting in PST timezone
-                                                        $start_hour_formatted = !empty($start_hour) ? date('g:i A T', strtotime($start_hour . ':00 PST')) : 'N/A';
-                                                        $end_hour_formatted = !empty($end_hour) ? date('g:i A T', strtotime($end_hour . ':00 PST')) : 'N/A';
-                                                        
-                                                        echo '<p>Date: ' . esc_html($arrive_date) . ' (Start Time: ' . esc_html($start_hour_formatted) . ' - End Time: ' . esc_html($end_hour_formatted) . ')</p>';
-                                                    }
-                                                }
-                                            }
-                                            ?>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-                                <?php } ?>
-
-                                <?php if(!empty($renter_msg)) { ?>
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e('Notes', 'homey'); ?></h2>
-                                        </div><!-- block-left -->
-                                        <div class="block-right">
-                                            <p><?php echo esc_attr($renter_msg); ?></p>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-                                <?php } ?>
-
-                                <?php if(!empty($location_rules)) { ?>
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e("Location Rules", "homey-child"); ?></h2>
-                                        </div><!-- block-left -->
-                                        <div class="block-right">
-                                            <p><?php echo esc_attr($location_rules); ?></p>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-                                <?php } ?>
-
-                                <?php if(!empty($cancellation_policy)) { ?>
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e("Cancellation Policy", "homey-child"); ?></h2>
-                                        </div><!-- block-left -->
-                                        <div class="block-right">
-                                            <p><?php echo $cancellation_policy; ?></p>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-                                <?php } ?>
-
-                                <?php if(!empty($overtime_policy)) { ?>
-                                <div class="block-section">
-                                    <div class="block-body">
-                                        <div class="block-left">
-                                            <h2 class="title"><?php esc_html_e("Overtime Policy", "homey-child"); ?></h2>
-                                        </div><!-- block-left -->
-                                        <div class="block-right">
-                                            <p><?php echo $overtime_policy; ?></p>
-                                        </div><!-- block-right -->
-                                    </div><!-- block-body -->
-                                </div><!-- block-section -->
-                                <?php } ?>
-
-                                <?php if($reservation_type != 'overtime_policy' || empty($reservation_type)){?>
-                                    <div class="block-section" data-reservation-payment-detail-section="1">
-                                        <div class="block-body">
-                                            <div class="block-left">
-                                                <h2 class="title"><?php echo esc_html__(esc_attr($homey_local['payment_label']), 'homey'); ?></h2>
-                                            </div><!-- block-left -->
-                                            <div class="block-right">
-                                                <?php
-                                                    echo homey_calculate_reservation_cost_day_date_child($reservationID);
-                                                ?>
-                                            </div><!-- block-right -->
-                                        </div><!-- block-body -->
-                                    </div><!-- block-section -->
-                                <?php }?>
-                            </div><!-- .block -->
-
-
-                            <div class="payment-buttons">
-                                <?php homey_reservation_action($reservation_status, $upfront_payment, $payment_link, $reservationID, 'btn-half-width'); ?>
-                            </div>
-                        </div><!-- .dashboard-area -->
-                    </div><!-- col-lg-12 col-md-12 col-sm-12 -->
+            <?php if($reservation_type == 'overtime_policy'): ?>
+                <div class="reservation-overtime-policy-section">
+                    <p style="margin-bottom: 0px;"><?php esc_html_e('This booking was created as an additional hours extension. Charges reflect additional time beyond your original reservation.','homey-child');?></p>
                 </div>
-            </div><!-- .container-fluid -->
-        </div><!-- .dashboard-content-area -->
-        <aside class="dashboard-sidebar">
-            <?php get_template_part('template-parts/dashboard/reservation/payment-sidebar', '', array("booking_type", $booking_type)); ?>
+            <?php endif; ?>
+            <div class="dashboard-reservation-content-area">
+                <div class="reservation-first-content-container">
+                    <div class="reservation-main-content">
+                        <h2 class="title"><?php esc_html_e("Reservation Details", "homey-child"); ?></h2>
+                        <div class="content-area">
+                            <div class="booking-detail-package">
+                                <img width="60" style="border-radius: 6px;" height="50" src="<?php echo get_the_post_thumbnail_url($listing_id); ?>" alt="<?php echo get_the_title($listing_id); ?>">
+                                <div class="content-area">
+                                    <h3 class="title"><a href="<?php echo get_the_permalink($listing_id); ?>"><?php echo get_the_title($listing_id); ?></a></h3>
+                                    <p class="clamp-10-words" style="margin-bottom: 0px;"><?php echo get_the_excerpt($listing_id); ?></p>
+                                </div>
+                            </div>
+                            <?php if(homey_is_renter()):?>
+                            <div class="booking-detail-host">
+                                <img width="60" style="border-radius:6px;" src="<?php echo get_avatar_url($owner_id); ?>" alt="<?php echo get_the_title($owner_id); ?>">
+                                <div class="content-area">
+                                <?php 
+                                $user_data = get_userdata( $owner_id );
+                                $owner_name = $user_data->display_name;
+                                ?>
+                                    <h3 class="title"><?php echo esc_html($owner_name); ?></h3>
+                                    <a href="<?php echo esc_url($messages_page_link); ?>" class="contact-now-host-button"><i class="homey-icon homey-icon-unread-emails"></i> <?php echo esc_html('Contact Host','homey-child'); ?></a>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            <?php if(homey_is_host()):?>
+                            <div class="booking-detail-host">
+                                <img width="60" style="border-radius:6px;" src="<?php echo get_avatar_url($owner_id); ?>" alt="<?php echo get_the_title($owner_id); ?>">
+                                <div class="content-area">
+                                <?php 
+                                $renter_id = get_post_meta($reservationID, 'listing_renter', true);
+                                $user_data = get_userdata( $renter_id );
+                                $renter_name = $user_data->display_name;
+                                ?>
+                                    <h3 class="title"><?php echo esc_html($renter_name); ?></h3>
+                                    <a href="<?php echo esc_url($messages_page_link); ?>" class="contact-now-host-button"><i class="homey-icon homey-icon-unread-emails"></i> <?php echo esc_html('Contact Renter','homey-child'); ?></a>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            <?php if(homey_is_admin()){ ?>
+                                <div class="booking-detail-host">
+                                    <img width="60" style="border-radius:6px;" src="<?php echo get_avatar_url($owner_id); ?>" alt="<?php echo get_the_title($owner_id); ?>">
+                                    <div class="content-area">
+                                    <?php 
+                                    $user_data = get_userdata( $owner_id );
+                                    $owner_name = $user_data->display_name;
+                                    ?>
+                                        <h3 class="title"><?php echo esc_html($owner_name); ?></h3>
+                                        <a href="<?php echo esc_url($messages_page_link); ?>" class="contact-now-host-button"><i class="homey-icon homey-icon-unread-emails"></i> <?php echo esc_html('Contact Host','homey-child'); ?></a>
+                                    </div>
+                                </div>
+                                <?php 
+                                $renter_id = get_post_meta($reservationID, 'listing_renter', true);
+                                $user_data = get_userdata( $renter_id );
+                                $renter_name = $user_data->display_name;
+                                ?>
+                                <div class="booking-detail-host">
+                                    <img width="60" style="border-radius:6px;" src="<?php echo get_avatar_url($renter_id); ?>" alt="<?php echo get_the_title($renter_id); ?>">
+                                    <div class="content-area">
+                                        <h3 class="title"><?php echo esc_html($renter_name); ?></h3>
+                                        <a href="<?php echo esc_url($messages_page_link); ?>" class="contact-now-host-button"><i class="homey-icon homey-icon-unread-emails"></i> <?php echo esc_html('Contact Renter','homey-child'); ?></a>
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
 
-            <?php homey_reservation_action($reservation_status, $upfront_payment, $payment_link, $reservationID, 'btn-full-width'); ?>
+                    <div class="reservation-main-content">
+                    <h2 class="title"><?php esc_html_e("Event Dates & Address", "homey-child"); ?></h2>
+                    <div class="content-area" style="padding: 10px 15px;">
+                            <div class="booking-time">
+                                <?php
+                                    if (!empty($booking_dates)) {
+                                        foreach ($booking_dates as $booking_date) {
+                                            if (!empty($booking_date['arrive_date'])) {
+                                                $arrive_date = $booking_date['arrive_date'];
+                                                $start_hour = isset($booking_date['start_hour']) ? $booking_date['start_hour'] : '';
+                                                $end_hour = isset($booking_date['end_hour']) ? $booking_date['end_hour'] : '';
+                                                
+                                                // Convert times to PST timezone
+                                                $pst_timezone = new DateTimeZone('America/Los_Angeles');
+                                                $utc_timezone = new DateTimeZone('UTC');
+                                                
+                                                // Parse the date from MM-DD-YYYY format and convert to YYYY-MM-DD
+                                                $date_parts = explode('-', $arrive_date);
+                                                if (count($date_parts) == 3) {
+                                                    // Assume format is MM-DD-YYYY
+                                                    $standard_date = $date_parts[2] . '-' . $date_parts[0] . '-' . $date_parts[1];
+                                                } else {
+                                                    $standard_date = $arrive_date;
+                                                }
+                                                
+                                                if (!empty($start_hour)) {
+                                                    // Create datetime from arrive_date and start_hour, assume UTC initially
+                                                    $start_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $standard_date . ' ' . $start_hour . ':00:00', $utc_timezone);
+                                                    if ($start_datetime) {
+                                                        $start_datetime->setTimezone($pst_timezone);
+                                                        $start_hour_formatted = $start_datetime->format('g:i A T');
+                                                    } else {
+                                                        $start_hour_formatted = 'N/A';
+                                                    }
+                                                } else {
+                                                    $start_hour_formatted = 'N/A';
+                                                }
+                                                
+                                                if (!empty($end_hour)) {
+                                                    // Create datetime from arrive_date and end_hour, assume UTC initially
+                                                    $end_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $standard_date . ' ' . $end_hour . ':00:00', $utc_timezone);
+                                                    if ($end_datetime) {
+                                                        $end_datetime->setTimezone($pst_timezone);
+                                                        $end_hour_formatted = $end_datetime->format('g:i A T');
+                                                    } else {
+                                                        $end_hour_formatted = 'N/A';
+                                                    }
+                                                } else {
+                                                    $end_hour_formatted = 'N/A';
+                                                }
+                                                
+                                                echo '<p style="margin-bottom: 0px;"><b>Date:</b> ' . esc_html($arrive_date) . ' (Start Time: ' . esc_html($start_hour_formatted) . ' - End Time: ' . esc_html($end_hour_formatted) . ')</p>';
+                                            }
+                                        }
+                                    }
+                                ?>
+                            </div>
+                            <?php if(!empty($address)){ ?>
+                                <div class="booking-address">
+                                    <p style="margin-bottom: 0px;"><b>Address: </b> <?php echo $address; ?></p>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
 
-        </aside><!-- .dashboard-sidebar -->
+                    <div class="reservation-site-info-section">
+                        <h2 class="title"><?php esc_html_e("Site Contact & Day of Instructions", "homey-child"); ?></h2>
+                        <div class="content">
+                            <b><?php echo $site_rep_name; ?></b>
+                            <p style="margin-bottom: 0px;"><?php echo esc_attr($welcome_message); ?></p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="reservation-second-content-container">
+                    <div class="reservation-price-section">
+                        <?php get_template_part('template-parts/dashboard/reservation/payment-sidebar', '', array("booking_type", $booking_type)); ?>
+                    </div>
+                    <div class="reservation-site-info-section">
+                        <h2 class="title"><?php esc_html_e("Event Insurance Add-On", "homey-child"); ?></h2>
+                        <div class="content">
+                            <p style="margin-bottom: 0px;"><?php esc_html_e('You can purchase event insurance through our partner,','homey-child');?> <a target="__blank" href="https://www.theeventhelper.com/#91wv65"><?php esc_html_e('EventHelper.','homey-child');?></a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="reservation-action-container">
+                <?php homey_reservation_action($reservation_status, $upfront_payment, $payment_link, $reservationID, 'btn-full-width'); ?>
+            </div>
+
+        <?php endif; ?>
     <?php } ?>
 
     <?php if ($post_type == 'homey_e_reservation') { ?>
@@ -582,22 +397,22 @@ if( !homey_give_access($reservationID) ) {
         </div>
     <?php } ?>
         </div><!-- .user-dashboard-right -->
-<?php get_template_part('template-parts/dashboard/reservation/message'); ?>
-<div class="modal fade" id="dialog-confirm" tabindex="-1" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title"><?php esc_html_e('Are you sure!','homey-child');?></h4>
-      </div>
-      <div class="modal-body">
-        <p><?php esc_html_e('Warning, you are about to cancel an existing reservation. This is frowned upon and may result in penalties to your account if consistently done. Are you sure you wish to cancel?','homey-child');?></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal"><?php esc_html_e('Close','homey-child');?></button>
-        <button type="button" class="btn btn-danger confirm-cancel" id="confirm-reservation-cancelation"><?php esc_html_e('Cancel Reservation','homey-child');?></button>
-      </div>
+    <?php get_template_part('template-parts/dashboard/reservation/message'); ?>
+    <div class="modal fade" id="dialog-confirm" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><?php esc_html_e('Are you sure!','homey-child');?></h4>
+        </div>
+        <div class="modal-body">
+            <p><?php esc_html_e('Warning, you are about to cancel an existing reservation. This is frowned upon and may result in penalties to your account if consistently done. Are you sure you wish to cancel?','homey-child');?></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><?php esc_html_e('Close','homey-child');?></button>
+            <button type="button" class="btn btn-danger confirm-cancel" id="confirm-reservation-cancelation"><?php esc_html_e('Cancel Reservation','homey-child');?></button>
+        </div>
+        </div>
     </div>
-  </div>
 </div>
 <?php }

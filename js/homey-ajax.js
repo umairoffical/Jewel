@@ -3496,28 +3496,60 @@ jQuery(document).ready(function ($) {
                     'host_cancel': host_cancel,
                     'reason': reason
                 },
-                beforeSend: function( ) {
+                beforeSend: function() {
                     $this.children('i').remove();
                     $this.prepend('<i class=" '+process_loader_spinner+'"></i>');
                 },
                 success: function(data) {
-
                     parentDIV.find('.alert').remove();
                     if( data.success ) {
                         $this.attr("disabled", true);
                         window.location.reload();
                     } else {
-                        parentDIV.find('.dashboard-area').prepend('<div class="alert alert-danger alert-dismissible" role="alert"><button type="button" class="close" data-hide="alert" aria-label="Close"><i class="homey-icon homey-icon-close"></i></button>'+data.message+'</div>');
+                        parentDIV.find('.dashboard-area').prepend(
+                            '<div class="alert alert-danger alert-dismissible" role="alert">' +
+                                '<button type="button" class="close" data-hide="alert" aria-label="Close">' +
+                                    '<i class="homey-icon homey-icon-close"></i>' +
+                                '</button>' +
+                                data.message +
+                            '</div>'
+                        );
                     }
                 },
                 error: function(xhr, status, error) {
-                    var err = eval("(" + xhr.responseText + ")");
-                    console.log(err.Message);
+                    // Improved, will NOT eval xhr.responseText.
+                    parentDIV.find('.alert').remove();
+                    var errMsg = "An unexpected error occurred.";
+                    // Try to parse valid JSON, fallback to display message.
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data.message) {
+                            errMsg = data.message;
+                        }
+                    } catch (parseError) {
+                        // If the response is not JSON (e.g., HTML from a 500 error), show default message plus status.
+                        if(xhr.status === 500) {
+                            errMsg = "Internal server error (500).";
+                        } else if(xhr.responseText && xhr.responseText.trim().charAt(0) === '<') {
+                            errMsg = "Server returned an unexpected HTML response.";
+                        } else if(xhr.status && xhr.status !== 200){
+                            errMsg = "Server error: " + xhr.status;
+                        }
+                    }
+                    
+                    parentDIV.find('.dashboard-area').prepend(
+                        '<div class="alert alert-danger alert-dismissible" role="alert">' +
+                        '<button type="button" class="close" data-hide="alert" aria-label="Close">' +
+                        '<i class="homey-icon homey-icon-close"></i></button>' +
+                        errMsg +
+                        '</div>'
+                    );
+                    // For dev diagnostic, still log the raw error to console
+                    console.error('AJAX Error:', status, error, xhr.responseText);
                 },
                 complete: function(){
                     $this.children('i').removeClass(process_loader_spinner);
                 }
-
             });
 
         });

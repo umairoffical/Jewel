@@ -47,14 +47,16 @@ function send_overtime_policy(){
         $total_amount = $price_per_hour * $overtime_hours;
 
         $table_name = $wpdb->prefix . 'homey_thread_messages';
-        $message = "Dear Client,\n\n" .
-            "    We hope your experience has been great so far.\n\n" .
-            "    We wanted to inform you that your request for overtime has been approved for an additional {$overtime_hours} hours. The overtime charge for these extra hours is \${$total_amount}.\n\n" .
-            "    Please kindly arrange payment of this amount to continue enjoying the facilities without interruption.\n\n" .
-            "    If you have any questions or need further assistance, please feel free to reach out to us.\n\n" .
-            "    Thank you for choosing our services. We look forward to supporting you further.\n\n" .
-            "    Best regards,\n" .
-            "    Management";
+        $message = "The host has submitted a fee request for additional time beyond your original booking.\n\n"
+            . "Please review the charge and proceed with payment only if you agree to the extended hours. If accepted, your account will be charged the additional amount.\n\n"
+            . "As a reminder, hosts are only permitted to charge up to 1.5× the original hourly rate for any additional hours beyond a 15-minute grace period. If the fee exceeds this limit or you did not approve the extra time, please contact Location Jewel before submitting payment.\n\n"
+            . "If you have any questions, we’re here to help.\n\n"
+            . "Best,\n"
+            . "Location Jewel Team\n\n"
+            . "Overtime Details:\n"
+            . "    Hours: {$overtime_hours}\n"
+            . "    Price per hour: $" . number_format($price_per_hour, 2) . "\n"
+            . "    Total: $" . number_format($total_amount, 2);
         $created_by = $sender_id;
         $attachments = serialize(array()); // Serialize empty array for attachments
 
@@ -101,7 +103,7 @@ function send_overtime_policy(){
             wp_die();
         }
 
-        echo json_encode(array('success' => true, 'msg' => 'Overtime policy sent successfully'));
+        echo json_encode(array('success' => true, 'msg' => 'Additional Hours Sent.'));
         wp_die();
 
     }else{
@@ -132,7 +134,7 @@ function reject_overtime_message(){
             array('%s')
         );
 
-        echo json_encode(array('success' => true, 'msg' => 'Overtime message rejected successfully'));
+        echo json_encode(array('success' => true, 'msg' => 'Additional Hours Rejected.'));
         wp_die();
     }else{
         echo json_encode(array('success' => false, 'msg' => 'Invalid message id or thread id'));
@@ -240,7 +242,7 @@ function approve_overtime_message(){
         echo json_encode(
             array(
                 'success' => true,
-                'msg' => 'Overtime message approved successfully',
+                'msg' => 'Payment Approved',
                 'reservation_detail' => $reservation_detail_link
             )
         );

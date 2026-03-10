@@ -13,6 +13,19 @@ $forms_gdpr_href_link = homey_option('forms_gdpr_href_link');
 
 $form_type = homey_option('form_type');
 $single_listing_host_contact = homey_option('single_listing_host_contact');
+
+$current_user = wp_get_current_user();
+if(!empty($current_user)){
+    $first_name = $current_user->first_name;
+    $last_name = $current_user->last_name;
+    if( empty($first_name) && empty($last_name) ){
+        $name = $current_user->display_name;
+    } else {
+        $name = $first_name . ' ' . $last_name;
+    }
+}else{
+    $name = '';
+}
 ?>
 <div class="modal fade custom-modal-contact-host" id="modal-contact-host" tabindex="-1" role="dialog">
     <div class="modal-dialog clearfix" role="document">
@@ -47,7 +60,7 @@ $single_listing_host_contact = homey_option('single_listing_host_contact');
                             <input type="hidden" name="listing_title" value="<?php echo esc_attr(get_the_title($post->ID)); ?>"/>
                             <input type="hidden" name="action" value="homey_host_contact_child">
                             <div class="form-group">
-                                <input type="text" name="name" class="form-control" placeholder="<?php echo esc_attr($homey_local['con_name']); ?>">
+                                <input type="text" name="name" class="form-control" value="<?php echo esc_attr($name); ?>" placeholder="<?php echo esc_attr($homey_local['con_name']); ?>">
                             </div>
                             <!-- <div class="form-group">
                                 <input type="email" name="email" class="form-control" placeholder="<?php echo esc_attr($homey_local['con_email']); ?>">

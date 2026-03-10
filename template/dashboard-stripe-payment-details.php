@@ -48,6 +48,7 @@ function get_payments_from_custom_table() {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <?php if(!empty($payments)):?>
                                     <?php foreach($payments as $payment) { ?>
                                         <tr>
                                             <td><?php echo $payment->id; ?></td>
@@ -58,8 +59,13 @@ function get_payments_from_custom_table() {
                                             <td><?php echo ucfirst($payment->payment_status); ?></td>
                                             <td><?php echo $payment->paid_time; ?></td>
                                             <td><?php echo homey_formatted_price($payment->amount, true); ?></td>
-                                        </tr>
+                                        </tr> 
                                     <?php } ?>
+                                    <?php else:?>
+                                        <tr>
+                                            <td colspan="6"><?php esc_html_e('No payments found', 'homey'); ?></td>
+                                        </tr>
+                                    <?php endif;?>
                                 </tbody>
                             </table>
                         </div>

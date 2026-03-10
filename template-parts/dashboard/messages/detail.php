@@ -212,9 +212,9 @@ if( $user_can_reply || homey_is_admin() > 0 ) { ?>
                                     <?php
                                     if(!empty($message_status)){
                                         if($message_status == 'pending'){
-                                            echo '<span style="background-color: #FFC107; padding: 2px 7px; font-weight: 600; margin-left: 10px; border-radius: 4px;">'.esc_html__('Pending', 'homey').'</span>';
+                                            echo '<span style="background-color: #37424B; color:white; padding: 2px 7px; font-weight: 600; margin-left: 10px; border-radius: 4px;">'.esc_html__('Pending', 'homey').'</span>';
                                         }elseif($message_status == 'approved'){
-                                            echo '<span style="background-color: #40813F; padding: 2px 7px; font-weight: 600; margin-left: 10px; border-radius: 4px; color: #fff;">'.esc_html__('Approved    ', 'homey').'</span>';
+                                            echo '<span style="background-color: #74918E; padding: 2px 7px; font-weight: 600; margin-left: 10px; border-radius: 4px; color: #fff;">'.esc_html__('Approved    ', 'homey').'</span>';
                                         }elseif($message_status == 'rejected'){
                                             echo '<span style="background-color: #FF0000; padding: 2px 7px; font-weight: 600; margin-left: 10px; border-radius: 4px; color: #fff;">'.esc_html__('Rejected', 'homey').'</span>';
                                         }
@@ -271,7 +271,7 @@ if( $user_can_reply || homey_is_admin() > 0 ) { ?>
                             ), $payment_link );
                         ?>
                             <div class="show-reservation-detail">
-                                <a class="btn btn-primary" href="<?php echo esc_url($payment_link); ?>" target="_blank"><?php esc_html_e('Pay Now', 'homey'); ?></a>
+                                <a class="btn btn-primary" href="#" target="_blank"><?php esc_html_e('Paid', 'homey'); ?></a>
                             </div>
                         <?php
                     }
@@ -354,7 +354,7 @@ if( $user_can_reply || homey_is_admin() > 0 ) { ?>
                         $reservation_status = get_post_meta($homey_thread->listing_id, 'reservation_status', true);
                         if($reservation_status == 'booked'){
                             ?>
-                            <a href="#" style="display:block; padding:0px 25px;" data-toggle="modal" data-target="#overtimeModal" class="btn btn-primary"><?php esc_html_e('Send Overtime Quotation','homey-child');?></a>
+                            <a href="#" style="display:block; padding:0px 25px;" data-toggle="modal" data-target="#overtimeModal" class="btn btn-primary"><?php esc_html_e('Additional Hours','homey-child');?></a>
                             <?php
                         }
                         ?>
