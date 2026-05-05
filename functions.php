@@ -63,6 +63,7 @@ include_once( get_stylesheet_directory() . '/framework/options/extra_fields.php'
 include_once( get_stylesheet_directory() . '/framework/functions/search-child.php');
 include_once( get_stylesheet_directory() . '/framework/functions/overtime-threads.php');
 include_once( get_stylesheet_directory() . '/framework/functions/child-messages.php');
+include_once( get_stylesheet_directory() . '/framework/functions/reservation-actions.php');
 include_once( get_stylesheet_directory() . '/framework/functions/renter-stipe-payment.php');
 // Load Stripe files in correct order
 include_once( get_stylesheet_directory() . '/framework/functions/class-homey-stripe-connect.php');

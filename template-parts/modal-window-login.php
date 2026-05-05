@@ -93,7 +93,7 @@ $login_as_normal_form = homey_option('login_as_normal_form');
                             <input type="hidden" name="random_action_str" id="random_action_str" value="<?php echo rand(111111, 999999); ?>">
                         </form>
                         <?php if($nav_register) { ?>
-                            <p class="text-center"><?php echo esc_html__("Don't have an account?", 'homey'); ?> <a href="#" data-toggle="modal" data-target="#modal-register" data-dismiss="modal"><?php echo esc_html__('Register', 'homey'); ?></a></p>
+                            <p class="text-center"><?php //echo esc_html__("Don't have an account?", 'homey'); ?> <a href="#" data-toggle="modal" data-target="#modal-register" data-dismiss="modal"><?php echo esc_html__('Register as Renter', 'homey'); ?></a></p>
                         <?php } ?>
                     </div>
 

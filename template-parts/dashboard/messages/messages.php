@@ -141,7 +141,7 @@ if ( sizeof( $homey_threads ) != 0 ) :
 						</div>
 						<div class="media-body">
 							<strong><?php echo ucfirst( $sender_display_name ); ?></strong><br>
-							<?php echo date_i18n( homey_convert_date(homey_option('homey_date_format')).' '.get_option('time_format'), strtotime( $last_message->time ) ); ?>
+							<?php echo wp_date( homey_convert_date(homey_option('homey_date_format')).' '.get_option('time_format'), strtotime( $last_message->time ), new DateTimeZone('America/Los_Angeles') ); ?>
 						</div>
 					</div>
 				</div>

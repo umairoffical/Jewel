@@ -207,8 +207,9 @@ if( $user_can_reply || homey_is_admin() > 0 ) { ?>
                         <div class="msg-user-left">
                             <div><strong><?php echo esc_attr($message_author_name); ?></strong>
                                 <span class="message-date">
-                                    <span><i class="homey-icon homey-icon-calendar-3"></i> <?php echo date_i18n( homey_convert_date(homey_option('homey_date_format')), strtotime( $message->time ) ); ?> </span>
-                                    <span><i class="homey-icon homey-icon-time-clock-circle"></i>  <?php echo date_i18n( get_option('time_format'), strtotime( $message->time ) ); ?> </span>
+                                    <?php $pacific_tz = new DateTimeZone('America/Los_Angeles'); ?>
+                                    <span><i class="homey-icon homey-icon-calendar-3"></i> <?php echo wp_date( homey_convert_date(homey_option('homey_date_format')), strtotime( $message->time ), $pacific_tz ); ?> </span>
+                                    <span><i class="homey-icon homey-icon-time-clock-circle"></i>  <?php echo wp_date( get_option('time_format'), strtotime( $message->time ), $pacific_tz ); ?> </span>
                                     <?php
                                     if(!empty($message_status)){
                                         if($message_status == 'pending'){

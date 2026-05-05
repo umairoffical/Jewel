@@ -130,7 +130,7 @@ if(!wp_is_mobile()):
                             <button id="request_for_reservation" type="button"
                                 class="btn btn-full-width btn-primary"><?php echo esc_html__('Request to Book', 'homey'); ?></button>
                         <?php else:?>
-                            <span style="display: block; width: 100% !important; background-color: black; color: white; font-weight: 600; padding: 10px; text-align: center; border-radius: 6px; margin-bottom: 10px;"><?php esc_html_e("NOTE: Only Renter can make bookings!", 'homey-child');?></span>
+                            <span style="display: block; width: 100% !important; background-color: black; color: white; font-weight: 600; padding: 10px; text-align: center; border-radius: 6px; margin-bottom: 10px;"><?php esc_html_e("Create a renter account to book.", 'homey-child');?></span>
                         <?php endif; ?>
                         <div class="text-center text-small"><i
                                     class="homey-icon homey-icon-information-circle"></i> <?php echo esc_html__("You won't be charged yet", 'homey'); ?>

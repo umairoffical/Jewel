@@ -469,7 +469,7 @@ function homey_get_localization() {
 
 		'login_text' => esc_html__('Login', 'homey'),
 		'register_text' => esc_html__('Register', 'homey'),
-		'become_host_text' => esc_html__('Become a Host', 'homey'),
+		'become_host_text' => esc_html__('Register as Host', 'homey'),
 
 
 		'cs_total' => esc_html__('Total', 'homey'),

@@ -34,7 +34,7 @@ if($first_name && $last_name){
         <?php } ?>
         <div class="progress mb-5">
             <div class="progress-bar progress-bar-success" role="progressbar" 
-                    aria-valuenow="43" aria-valuemin="0" aria-valuemax="100" 
+                    aria-valuenow="43" aria-valuemin="0" aria-valuemax="99" 
                     style="width: 0%;">
             </div>
         </div>

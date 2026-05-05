@@ -209,7 +209,7 @@ if( !homey_give_access($reservationID) ) {
     <?php if ($post_type == 'homey_reservation') { ?>
 
         <?php if($hours_diff > 48): ?>
-            <div class="reservation-overtime-policy-section" style="background-color: #f8d7da; padding: 10px; border-radius: 5px; border: 1px solid #f5c6cb; color: #721c24;">
+            <div class="reservation-overtime-policy-section" style="padding: 10px; border-radius: 5px; color: #721c24;">
                 <p style="margin-bottom: 0px;"><?php esc_html_e('This booking has expired. Please request for new reservation.','homey-child');?></p>
             </div>
         <?php else: ?>
@@ -373,9 +373,16 @@ if( !homey_give_access($reservationID) ) {
                 </div>
             </div>
             <div class="reservation-action-container">
-                <?php homey_reservation_action($reservation_status, $upfront_payment, $payment_link, $reservationID, 'btn-full-width'); ?>
+                <div class="reveiws-reports">
+                    <?php if(homey_is_renter()): ?>
+                        <a href="#" data-reservation_id="<?php echo $reservationID?>" class="btn btn-primary submit-a-review-btn"><?php esc_html_e('Submit a Review','homey-child');?></a>
+                    <?php endif; ?>
+                    <a href="#" data-reservation_id="<?php echo $reservationID?>" class="btn btn-primary report-a-problem-btn"><?php esc_html_e('Report a Problem','homey-child');?></a>
+                </div>
+                <div class="reservation-default-actions">
+                    <?php homey_reservation_action($reservation_status, $upfront_payment, $payment_link, $reservationID, 'btn-full-width'); ?>
+                </div>
             </div>
-
         <?php endif; ?>
     <?php } ?>
 
@@ -412,6 +419,244 @@ if( !homey_give_access($reservationID) ) {
             <button type="button" class="btn btn-default" data-dismiss="modal"><?php esc_html_e('Close','homey-child');?></button>
             <button type="button" class="btn btn-danger confirm-cancel" id="confirm-reservation-cancelation"><?php esc_html_e('Cancel Reservation','homey-child');?></button>
         </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================
+SUBMIT A REVIEW MODAL
+====================================================== -->
+<div class="modal fade homey-child-modal" id="submitReviewModal" tabindex="-1" role="dialog" aria-labelledby="submitReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header hc-modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="submitReviewModalLabel">
+                    <i class="homey-icon homey-icon-star"></i>
+                    <?php esc_html_e('Submit a Review', 'homey-child'); ?>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="submit-review-form" novalidate>
+                    <input type="hidden" name="reservation_id" id="review_reservation_id" value="<?php echo esc_attr($reservationID); ?>">
+                    <input type="hidden" name="security" value="<?php echo wp_create_nonce('homey-child-review-nonce'); ?>">
+
+                    <!-- Star Rating -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label"><?php esc_html_e('Your Rating', 'homey-child'); ?> <span class="hc-required">*</span></label>
+                        <div class="hc-star-rating" id="hc-star-rating">
+                            <?php for ($i = 5; $i >= 1; $i--): ?>
+                                <input type="radio" id="hc-star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" class="hc-star-input">
+                                <label for="hc-star<?php echo $i; ?>" class="hc-star-label" title="<?php echo $i; ?> star<?php echo $i > 1 ? 's' : ''; ?>">&#9733;</label>
+                            <?php endfor; ?>
+                        </div>
+                        <div class="hc-rating-text" id="hc-rating-text"></div>
+                    </div>
+
+                    <!-- Review Content -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label" for="hc_review_content"><?php esc_html_e('Your Review', 'homey-child'); ?> <span class="hc-required">*</span></label>
+                        <textarea id="hc_review_content" name="review_content" class="form-control hc-textarea" rows="5"
+                            placeholder="<?php esc_attr_e('Share your experience with this venue — what did you love, and what could be improved?', 'homey-child'); ?>"></textarea>
+                        <span class="hc-char-count" id="hc-review-char-count">0 / 1000</span>
+                    </div>
+
+                    <!-- Message Area -->
+                    <div id="hc-review-form-message"></div>
+                </form>
+            </div>
+            <div class="modal-footer hc-modal-footer">
+                <button type="button" class="btn btn-default hc-btn-cancel" data-dismiss="modal">
+                    <?php esc_html_e('Cancel', 'homey-child'); ?>
+                </button>
+                <button type="button" class="btn btn-primary hc-btn-submit submit-review-ajax-btn">
+                    <span class="hc-btn-text"><?php esc_html_e('Submit Review', 'homey-child'); ?></span>
+                    <span class="hc-btn-loading" style="display:none;">
+                        <i class="fa fa-spinner fa-spin"></i> <?php esc_html_e('Submitting...', 'homey-child'); ?>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================
+REPORT A PROBLEM MODAL
+====================================================== -->
+<div class="modal fade homey-child-modal" id="reportProblemModal" tabindex="-1" role="dialog" aria-labelledby="reportProblemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header hc-modal-header hc-modal-header--danger">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="reportProblemModalLabel">
+                    <i class="homey-icon homey-icon-warning-circle"></i>
+                    <?php esc_html_e('Report an Issue', 'homey-child'); ?>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="hc-report-intro">
+                    <p><?php esc_html_e('This form documents an issue related to your booking and notifies both parties.', 'homey-child'); ?></p>
+                    <p class="hc-text-muted"><em><?php esc_html_e('Location Jewel facilitates communication between Members and does not determine legal liability or guarantee resolution.', 'homey-child'); ?></em></p>
+                </div>
+
+                <form id="report-problem-form" novalidate>
+                    <input type="hidden" name="reservation_id" id="report_reservation_id" value="<?php echo esc_attr($reservationID); ?>">
+                    <input type="hidden" name="security" value="<?php echo wp_create_nonce('homey-child-report-nonce'); ?>">
+
+                    <!-- Section: Booking Details -->
+                    <div class="hc-section-title"><?php esc_html_e('Booking Details', 'homey-child'); ?></div>
+
+                    <!-- I am -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label"><?php esc_html_e('I am', 'homey-child'); ?> <span class="hc-required">*</span></label>
+                        <div class="hc-radio-group">
+                            <label class="hc-radio-label">
+                                <input type="radio" name="user_role" value="host" <?php echo homey_is_host() ? 'checked' : ''; ?>>
+                                <span class="hc-radio-box"></span>
+                                <?php esc_html_e('Host', 'homey-child'); ?>
+                            </label>
+                            <label class="hc-radio-label">
+                                <input type="radio" name="user_role" value="renter" <?php echo homey_is_renter() ? 'checked' : ''; ?>>
+                                <span class="hc-radio-box"></span>
+                                <?php esc_html_e('Renter', 'homey-child'); ?>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Booking Address (read-only, pre-filled) -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label"><?php esc_html_e('Booking Address', 'homey-child'); ?></label>
+                        <input type="text" class="form-control hc-input hc-input--readonly" value="<?php echo esc_attr($address); ?>" readonly>
+                    </div>
+
+                    <!-- Booking Date & Time -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label"><?php esc_html_e('Booking Date & Time', 'homey-child'); ?></label>
+                        <div class="hc-input hc-input--readonly hc-booking-dates">
+                            <?php
+                            if (!empty($booking_dates)) {
+                                foreach ($booking_dates as $bd) {
+                                    if (!empty($bd['arrive_date'])) {
+                                        $bd_start = isset($bd['start_hour']) ? $bd['start_hour'] : '';
+                                        $bd_end   = isset($bd['end_hour'])   ? $bd['end_hour']   : '';
+                                        echo '<span class="hc-date-entry">' . esc_html($bd['arrive_date']);
+                                        if ($bd_start) echo ' ' . esc_html__('Start:', 'homey-child') . ' ' . esc_html($bd_start) . ':00';
+                                        if ($bd_end)   echo ' ' . esc_html__('End:', 'homey-child')   . ' ' . esc_html($bd_end)   . ':00';
+                                        echo '</span>';
+                                    }
+                                }
+                            } else {
+                                echo '<span class="hc-text-muted">' . esc_html__('N/A', 'homey-child') . '</span>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+
+                    <!-- Host Name -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label"><?php esc_html_e('Host Name', 'homey-child'); ?></label>
+                        <?php
+                        $report_owner_data = get_userdata($owner_id);
+                        $report_owner_name = $report_owner_data ? $report_owner_data->display_name : '';
+                        ?>
+                        <input type="text" class="form-control hc-input hc-input--readonly" value="<?php echo esc_attr($report_owner_name); ?>" readonly>
+                    </div>
+
+                    <!-- Renter Name -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label"><?php esc_html_e('Renter Name', 'homey-child'); ?></label>
+                        <input type="text" class="form-control hc-input hc-input--readonly" value="<?php echo esc_attr($renter_name_while_booking); ?>" readonly>
+                    </div>
+
+                    <!-- Booking ID -->
+                    <div class="form-group hc-form-group">
+                        <label class="hc-label"><?php esc_html_e('Booking ID', 'homey-child'); ?> <span class="hc-text-muted"><?php esc_html_e('(Optional)', 'homey-child'); ?></span></label>
+                        <input type="text" class="form-control hc-input hc-input--readonly" value="<?php echo esc_attr($reservationID); ?>" readonly>
+                    </div>
+
+                    <!-- Section: Issue Type -->
+                    <div class="hc-section-title"><?php esc_html_e('What type of issue are you reporting?', 'homey-child'); ?> <span class="hc-required">*</span></div>
+                    <div class="form-group hc-form-group">
+                        <div class="hc-checkbox-group">
+                            <label class="hc-checkbox-label">
+                                <input type="radio" name="issue_type" value="property_damage" class="hc-issue-type">
+                                <span class="hc-checkbox-box"></span>
+                                <?php esc_html_e('Property Damage', 'homey-child'); ?>
+                            </label>
+                            <label class="hc-checkbox-label">
+                                <input type="radio" name="issue_type" value="injury" class="hc-issue-type">
+                                <span class="hc-checkbox-box"></span>
+                                <?php esc_html_e('Injury', 'homey-child'); ?>
+                            </label>
+                            <label class="hc-checkbox-label">
+                                <input type="radio" name="issue_type" value="other" class="hc-issue-type">
+                                <span class="hc-checkbox-box"></span>
+                                <?php esc_html_e('Other', 'homey-child'); ?>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Section: Description -->
+                    <div class="hc-section-title"><?php esc_html_e('Please describe what happened, including when it occurred.', 'homey-child'); ?> <span class="hc-required">*</span></div>
+                    <div class="form-group hc-form-group">
+                        <textarea id="hc_report_description" name="description" class="form-control hc-textarea" rows="6"
+                            placeholder="<?php esc_attr_e('Provide a detailed account of the incident, including the date and time it occurred...', 'homey-child'); ?>"></textarea>
+                        <span class="hc-char-count" id="hc-desc-char-count">0 / 2000</span>
+                    </div>
+
+                    <!-- Section: Damage Details (optional) -->
+                    <div class="hc-section-title"><?php esc_html_e('List Damage and Amount', 'homey-child'); ?> <span class="hc-text-muted"><?php esc_html_e('(if applicable)', 'homey-child'); ?></span></div>
+                    <div class="form-group hc-form-group">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <input type="text" name="damage_list" class="form-control hc-input"
+                                    placeholder="<?php esc_attr_e('Describe the damage (e.g., broken chair, stained carpet)', 'homey-child'); ?>">
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">$</span>
+                                    <input type="number" name="damage_amount" min="0" step="0.01" class="form-control hc-input"
+                                        placeholder="<?php esc_attr_e('Amount', 'homey-child'); ?>">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: Acknowledgment -->
+                    <div class="hc-section-title"><?php esc_html_e('Acknowledgment', 'homey-child'); ?> <span class="hc-required">*</span></div>
+                    <div class="form-group hc-form-group">
+                        <label class="hc-acknowledgment-label">
+                            <input type="checkbox" name="acknowledgment" value="1" id="hc-acknowledgment">
+                            <span class="hc-acknowledgment-text">
+                                <?php esc_html_e('By checking the box below and submitting this Incident Form, you certify that all of the information you provided on this Incident Form is to the best of your knowledge and belief true, correct, and complete.', 'homey-child'); ?>
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Fraud Warning -->
+                    <div class="hc-fraud-warning">
+                        <p><strong><?php esc_html_e('FRAUD WARNING:', 'homey-child'); ?></strong> <?php esc_html_e('Any person or business entity providing false, altered, or fraudulent statements, information, photos, and/or identity verification, insurance, or claim purposes may face criminal prosecution and civil liability. Location Jewel, LLC may immediately report violators, their identity information, and any evidence of fraudulent and criminal activity to law enforcement agencies and prosecuting offices to be charged federally and under state laws. The information you submit on this Incident Form and your account information may be used for incident investigation and processing purposes and may be shared with law enforcement and any applicable Location Jewel, LLC users, insurance providers, brokers, or agents, including any assigned insurance adjusters, special investigation units, and private investigators.', 'homey-child'); ?></p>
+                    </div>
+
+                    <!-- Message Area -->
+                    <div id="hc-report-form-message"></div>
+                </form>
+            </div>
+            <div class="modal-footer hc-modal-footer">
+                <button type="button" class="btn btn-default hc-btn-cancel" data-dismiss="modal">
+                    <?php esc_html_e('Cancel', 'homey-child'); ?>
+                </button>
+                <button type="button" class="btn btn-danger hc-btn-submit submit-report-ajax-btn">
+                    <span class="hc-btn-text"><?php esc_html_e('Submit Report', 'homey-child'); ?></span>
+                    <span class="hc-btn-loading" style="display:none;">
+                        <i class="fa fa-spinner fa-spin"></i> <?php esc_html_e('Submitting...', 'homey-child'); ?>
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -493,4 +493,215 @@ jQuery(document).ready(function($) {
     //     text = text.replace(/[0-9]/g, '');
     //     $(this).val(text);
     // });
-}); 
+
+    // ============================================================
+    // Utility: Show inline modal message
+    // ============================================================
+    function hcShowModalMessage(targetSelector, type, message) {
+        $(targetSelector).html(
+            '<div class="alert alert-' + type + ' alert-dismissible hc-alert" role="alert">' +
+            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+            '<span aria-hidden="true">&times;</span></button>' + message + '</div>'
+        );
+        $(targetSelector).get(0) && $(targetSelector)[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hcSetBtnLoading(btn, loading) {
+        if (loading) {
+            btn.find('.hc-btn-text').hide();
+            btn.find('.hc-btn-loading').show();
+            btn.prop('disabled', true);
+        } else {
+            btn.find('.hc-btn-text').show();
+            btn.find('.hc-btn-loading').hide();
+            btn.prop('disabled', false);
+        }
+    }
+
+    // ============================================================
+    // SUBMIT A REVIEW — Open Modal
+    // ============================================================
+    $(document).on('click', '.submit-a-review-btn', function (e) {
+        e.preventDefault();
+        var reservationId = $(this).data('reservation_id');
+        // Reset form
+        $('#submit-review-form')[0].reset();
+        $('#hc-review-form-message').html('');
+        $('#hc-rating-text').text('').removeClass('hc-rating-set');
+        $('#review_reservation_id').val(reservationId);
+        $('#hc-review-char-count').text('0 / 1000');
+        $('#submitReviewModal').modal('show');
+    });
+
+    // Star rating — interactive highlight
+    $(document).on('change', 'input[name="rating"]', function () {
+        var val = parseInt($(this).val());
+        var labels = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+        $('#hc-rating-text').text(labels[val - 1] || '').addClass('hc-rating-set');
+    });
+
+    // Character counter for review textarea
+    $(document).on('input', '#hc_review_content', function () {
+        var len = $(this).val().length;
+        $('#hc-review-char-count').text(len + ' / 1000');
+        if (len > 1000) $(this).val($(this).val().substring(0, 1000));
+    });
+
+    // ============================================================
+    // SUBMIT A REVIEW — Submit Form via AJAX
+    // ============================================================
+    $(document).on('click', '.submit-review-ajax-btn', function (e) {
+        e.preventDefault();
+        var $btn          = $(this);
+        var form          = $('#submit-review-form');
+        var rating        = form.find('input[name="rating"]:checked').val();
+        var reviewContent = form.find('textarea[name="review_content"]').val().trim();
+        var reservationId = form.find('input[name="reservation_id"]').val();
+        var security      = form.find('input[name="security"]').val();
+
+        // Client-side validation
+        if (!rating) {
+            hcShowModalMessage('#hc-review-form-message', 'danger', 'Please select a star rating before submitting.');
+            return;
+        }
+        if (reviewContent.length < 10) {
+            hcShowModalMessage('#hc-review-form-message', 'danger', 'Please write at least 10 characters for your review.');
+            return;
+        }
+        if (reviewContent.length > 1000) {
+            hcShowModalMessage('#hc-review-form-message', 'danger', 'Review must not exceed 1000 characters.');
+            return;
+        }
+
+        hcSetBtnLoading($btn, true);
+
+        $.ajax({
+            type: 'POST',
+            url: homey_child_ajax.ajax_url,
+            dataType: 'json',
+            data: {
+                action:         'homey_child_submit_review',
+                reservation_id: reservationId,
+                rating:         rating,
+                review_content: reviewContent,
+                security:       security,
+            },
+            success: function (data) {
+                if (data.success) {
+                    hcShowModalMessage('#hc-review-form-message', 'success', data.data.msg || 'Review submitted successfully!');
+                    form[0].reset();
+                    $('#hc-rating-text').text('');
+                    setTimeout(function () {
+                        $('#submitReviewModal').modal('hide');
+                    }, 2500);
+                } else {
+                    hcShowModalMessage('#hc-review-form-message', 'danger', (data.data && data.data.msg) ? data.data.msg : 'An error occurred. Please try again.');
+                }
+            },
+            error: function () {
+                hcShowModalMessage('#hc-review-form-message', 'danger', 'A network error occurred. Please check your connection and try again.');
+            },
+            complete: function () {
+                hcSetBtnLoading($btn, false);
+            }
+        });
+    });
+
+    // ============================================================
+    // REPORT A PROBLEM — Open Modal
+    // ============================================================
+    $(document).on('click', '.report-a-problem-btn', function (e) {
+        e.preventDefault();
+        var reservationId = $(this).data('reservation_id');
+        // Reset form
+        $('#report-problem-form')[0].reset();
+        $('#hc-report-form-message').html('');
+        $('#report_reservation_id').val(reservationId);
+        $('#hc-desc-char-count').text('0 / 2000');
+        $('#reportProblemModal').modal('show');
+    });
+
+    // Character counter for description textarea
+    $(document).on('input', '#hc_report_description', function () {
+        var len = $(this).val().length;
+        $('#hc-desc-char-count').text(len + ' / 2000');
+        if (len > 2000) $(this).val($(this).val().substring(0, 2000));
+    });
+
+    // ============================================================
+    // REPORT A PROBLEM — Submit Form via AJAX
+    // ============================================================
+    $(document).on('click', '.submit-report-ajax-btn', function (e) {
+        e.preventDefault();
+        var $btn         = $(this);
+        var form         = $('#report-problem-form');
+        var userRole     = form.find('input[name="user_role"]:checked').val();
+        var issueType    = form.find('input[name="issue_type"]:checked').val();
+        var description  = form.find('textarea[name="description"]').val().trim();
+        var damageList   = form.find('input[name="damage_list"]').val().trim();
+        var damageAmount = form.find('input[name="damage_amount"]').val().trim();
+        var acknowledged = form.find('input[name="acknowledgment"]').is(':checked');
+        var reservationId = form.find('input[name="reservation_id"]').val();
+        var security     = form.find('input[name="security"]').val();
+
+        // Client-side validation
+        if (!userRole) {
+            hcShowModalMessage('#hc-report-form-message', 'danger', 'Please select whether you are a Host or Renter.');
+            return;
+        }
+        if (!issueType) {
+            hcShowModalMessage('#hc-report-form-message', 'danger', 'Please select the type of issue you are reporting.');
+            return;
+        }
+        if (description.length < 10) {
+            hcShowModalMessage('#hc-report-form-message', 'danger', 'Please provide a detailed description (at least 10 characters).');
+            return;
+        }
+        if (!acknowledged) {
+            hcShowModalMessage('#hc-report-form-message', 'danger', 'You must check the acknowledgment box to submit this report.');
+            return;
+        }
+
+        hcSetBtnLoading($btn, true);
+
+        $.ajax({
+            type: 'POST',
+            url: homey_child_ajax.ajax_url,
+            dataType: 'json',
+            data: {
+                action:        'homey_child_report_problem',
+                reservation_id: reservationId,
+                user_role:     userRole,
+                issue_type:    issueType,
+                description:   description,
+                damage_list:   damageList,
+                damage_amount: damageAmount,
+                acknowledgment: acknowledged ? '1' : '0',
+                security:      security,
+            },
+            success: function (data) {
+                if (data.success) {
+                    hcShowModalMessage('#hc-report-form-message', 'success', data.data.msg || 'Report submitted successfully!');
+                    form[0].reset();
+                    setTimeout(function () {
+                        $('#reportProblemModal').modal('hide');
+                    }, 3000);
+                } else {
+                    hcShowModalMessage('#hc-report-form-message', 'danger', (data.data && data.data.msg) ? data.data.msg : 'An error occurred. Please try again.');
+                }
+            },
+            error: function () {
+                hcShowModalMessage('#hc-report-form-message', 'danger', 'A network error occurred. Please check your connection and try again.');
+            },
+            complete: function () {
+                hcSetBtnLoading($btn, false);
+            }
+        });
+    });
+
+    // Clear modal messages when modals close
+    $('#submitReviewModal, #reportProblemModal').on('hidden.bs.modal', function () {
+        $(this).find('.hc-alert').remove();
+    });
+
+});

@@ -677,7 +677,7 @@ jQuery(document).ready( function($) {
                 $('.cus-progress-bar-text').text('Your listing is 66.67% done.');
             } else {
                 $('.progress-bar-success').css('width', '100%'); //100
-                $('.cus-progress-bar-text').text('Your listing is 100% done.');
+                $('.cus-progress-bar-text').text('Your listing is 99% done.');
             }
         }
 

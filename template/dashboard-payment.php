@@ -279,7 +279,7 @@ $wir_zip_code = $user_meta['wir_zip_code'];
                             <h3 style="font-weight: bold; margin-bottom: 5px; color: #333;">Payment method</h3>
                             <div style="background-color: white; border-radius: 8px; padding: 15px;">
                                 <p style="font-size: 14px; color: #666; margin-bottom: 0; text-align: center;">
-                                    You will be redirected to Stripe's secure payment page to complete your payment.
+                                    You will be redirected to Stripe's secure payment page to complete your card authorization.
                                 </p>
                             </div>
                         </div>
@@ -287,7 +287,7 @@ $wir_zip_code = $user_meta['wir_zip_code'];
                         <input type="hidden" class="reservation_id" name="reservation_id" value="<?php echo $reservation_id;?>" />
                         <input type="hidden" class="renter_id" name="renter_id" value="<?php echo $renter_id; ?>" />
                         <input type="hidden" class="owner_id" name="owner_id" value="<?php echo $listing_owner; ?>" />
-                        <button type="submit" class="btn btn-primary renter-pay-reservation-amount btn-full-width mt-15 mb-0" style="font-size: 15px; padding: 7px 0px;"><?php esc_html_e('Pay Now','homey-child');?></button>
+                        <button type="submit" class="btn btn-primary renter-pay-reservation-amount btn-full-width mt-15 mb-0" style="font-size: 15px; padding: 7px 0px;"><?php esc_html_e('Authorize Card','homey-child');?></button>
                     </form>
                     <?php 
                     }

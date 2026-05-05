@@ -490,10 +490,31 @@ Template: homey
 }
 .reservation-action-container {
     display: flex;
-    width: 30% !important;
+    width: 100% !important;
     gap: 10px;
     margin-left: auto;
     margin-right: 30px !important;
+    margin-bottom: 10px;
+    padding: 0px 30px;
+    justify-content: space-between;
+}
+.reservation-action-container .submit-a-review-btn, 
+.reservation-action-container .report-a-problem-btn {
+    display: block !important;
+    margin-bottom: 10px !important;
+}
+.reservation-action-container .confirm-reservation.btn.btn-success,
+.reservation-action-container .btn-grey-light {
+    width: fit-content !important;
+    padding: 0px 20px;
+}
+.reservation-action-container .reveiws-reports {
+    display: flex;
+    gap: 10px;
+}
+.reservation-action-container .reservation-default-actions {
+    display: flex;
+    gap: 10px !important;
 }
 .short-message-link{
     color:black !important;
@@ -502,4 +523,100 @@ Template: homey
 .short-message-link:hover{
     text-decoration: underline;
     color: #f15e75 !important;
+}
+/* ============================================================
+   HOMEY CHILD — REVIEW & REPORT MODALS
+   ============================================================ */
+
+/* Modal shared styles */
+.homey-child-modal .modal-dialog { margin: 30px auto; }
+.homey-child-modal .modal-content { border-radius: 8px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.18); }
+
+/* Modal Header */
+.hc-modal-header { background: #f8f9fa; border-bottom: 2px solid #e9ecef; border-radius: 8px 8px 0 0; padding: 18px 24px; }
+.hc-modal-header .modal-title { font-size: 20px; font-weight: 600; color: #2c3e50; }
+.hc-modal-header .modal-title i { margin-right: 8px; color: #f15e75; }
+.hc-modal-header--danger { background: #fff5f5; border-bottom-color: #f5c6cb; }
+.hc-modal-header--danger .modal-title { color: #c0392b; }
+.hc-modal-header--danger .modal-title i { color: #c0392b; }
+.hc-modal-header .close { margin-top: -2px; opacity: 0.5; font-size: 24px; }
+.hc-modal-header .close:hover { opacity: 1; }
+
+/* Modal Footer */
+.hc-modal-footer { background: #f8f9fa; border-top: 1px solid #e9ecef; border-radius: 0 0 8px 8px; padding: 14px 24px; }
+.hc-modal-footer .btn { min-width: 120px; font-weight: 500; border-radius: 4px; }
+.hc-btn-cancel { background: #fff; border: 1px solid #ccc; color: #555; }
+.hc-btn-cancel:hover { background: #f1f1f1; }
+
+/* Form groups */
+.hc-form-group { margin-bottom: 18px; }
+.hc-label { font-weight: 600; font-size: 13px; color: #444; margin-bottom: 6px; display: block; }
+.hc-required { color: #e74c3c; font-size: 14px; }
+.hc-text-muted { color: #888; font-size: 12px; font-weight: normal; }
+
+/* Inputs */
+.hc-input { border: 1px solid #dde1e7; border-radius: 4px; padding: 8px 12px; font-size: 14px; color: #333; width: 100%; transition: border-color 0.2s; }
+.hc-input:focus { border-color: #f15e75; outline: none; box-shadow: 0 0 0 2px rgba(241,94,117,0.12); }
+.hc-input--readonly { background: #f5f6f8 !important; color: #666; cursor: default; }
+.hc-textarea { border: 1px solid #dde1e7; border-radius: 4px; padding: 10px 12px; font-size: 14px; color: #333; width: 100%; resize: vertical; min-height: 100px; transition: border-color 0.2s; }
+.hc-textarea:focus { border-color: #f15e75; outline: none; box-shadow: 0 0 0 2px rgba(241,94,117,0.12); }
+
+/* Character count */
+.hc-char-count { display: block; text-align: right; font-size: 11px; color: #aaa; margin-top: 3px; }
+
+/* Booking dates display */
+.hc-booking-dates { background: #f5f6f8; border: 1px solid #dde1e7; border-radius: 4px; padding: 8px 12px; font-size: 13px; color: #555; min-height: 36px; }
+.hc-date-entry { display: block; padding: 2px 0; }
+
+/* Radio / Checkbox groups */
+.hc-radio-group, .hc-checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; }
+.hc-radio-label, .hc-checkbox-label { display: flex; align-items: flex-start; cursor: pointer; font-size: 14px; color: #444; font-weight: 400; gap: 8px; }
+.hc-radio-label input[type="radio"], .hc-checkbox-label input[type="radio"], .hc-acknowledgment-label input[type="checkbox"] { accent-color: #f15e75; margin-top: 3px; transform: scale(1.2); cursor: pointer; }
+
+/* Section titles */
+.hc-section-title { font-size: 14px; font-weight: 700; color: #2c3e50; border-bottom: 2px solid #f15e75; padding-bottom: 6px; margin: 22px 0 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Report intro */
+.hc-report-intro { background: #fff8e1; border-left: 4px solid #ffc107; border-radius: 4px; padding: 12px 16px; margin-bottom: 20px; }
+.hc-report-intro p { margin: 0 0 4px; font-size: 13px; color: #555; }
+.hc-report-intro p:last-child { margin-bottom: 0; }
+
+/* Acknowledgment */
+.hc-acknowledgment-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-weight: 400; }
+.hc-acknowledgment-text { font-size: 13px; color: #555; line-height: 1.5; }
+
+/* Fraud Warning */
+.hc-fraud-warning { background: #fff3f3; border: 1px solid #f5c6cb; border-radius: 4px; padding: 12px 14px; margin-top: 16px; }
+.hc-fraud-warning p { font-size: 12px; color: #721c24; line-height: 1.5; margin: 0; }
+.hc-fraud-warning p strong { color: #c0392b; }
+
+/* Alert message */
+.hc-alert { border-radius: 4px; font-size: 13px; margin-top: 12px; }
+
+/* Star Rating */
+.hc-star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; margin-bottom: 6px; }
+.hc-star-input { display: none; }
+.hc-star-label { font-size: 34px; color: #ccc; cursor: pointer; transition: color 0.15s; line-height: 1; user-select: none; }
+.hc-star-label:hover,
+.hc-star-label:hover ~ .hc-star-label { color: #f5a623; }
+.hc-star-input:checked ~ .hc-star-label { color: #f5a623; }
+.hc-rating-text { font-size: 13px; font-weight: 600; color: #f5a623; height: 18px; transition: all 0.2s; }
+.hc-rating-set { color: #e67e22; }
+
+/* Responsive */
+@media (max-width: 767px) {
+    .homey-child-modal .modal-dialog { margin: 10px; }
+    .hc-star-label { font-size: 28px; }
+    .hc-modal-header { padding: 14px 16px; }
+    .hc-modal-footer { padding: 12px 16px; }
+}
+div#reportProblemModal .modal-dialog.modal-lg {
+    width: 800px !important;
+}
+@media screen and (max-width: 767px){
+    div#reportProblemModal .modal-dialog.modal-lg {
+        width: 85% !important;
+        display: block !important;
+        margin: auto !important;
+    }
 }
